@@ -1,17 +1,17 @@
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import MainLayout from "../layouts/MainLayout";
 import Home from "../pages/Home";
-/*import Login from "../pages/Login";
-import Usuarios from "../pages/Usuarios";*/
+import Inventario from "../pages/Inventario";
 
 const AppRoutes = () => {
   return (
     <Router>
-      <Routes>
-        <Route path="/" element={<Home />} />
-        {/*<Route path="/login" element={<Login />} />*/}
-        {/* <Route path="/usuarios" element={<Usuarios />} />*/}
-        {/* Agrega las demás interfaces aquí */}
-      </Routes>
+      <MainLayout>
+        <Routes>
+          <Route path="/" element={<Home />} />
+          <Route path="/inventario" element={<Inventario />} />
+        </Routes>
+      </MainLayout>
     </Router>
   );
 };
