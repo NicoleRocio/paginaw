@@ -1,5 +1,6 @@
-import { useState } from "react";
+import { useState, useContext } from "react";
 import styled from "styled-components";
+import { CartContext } from "../context/CartContext";
 
 const InventarioContainer = styled.div`
   padding: 30px;
@@ -88,6 +89,7 @@ const Stock = styled.span`
 
 const Inventario = () => {
   const [sedeSeleccionada, setSedeSeleccionada] = useState("todas");
+  const { addToCart } = useContext(CartContext);
 
   const dispositivos = [
     {
@@ -156,9 +158,28 @@ const Inventario = () => {
                 ? `Stock: ${item.stock} unidades`
                 : "Sin stock disponible"}
             </Stock>
+
+            {/* Botón Agregar al carrito */}
+            {item.stock > 0 && (
+              <button
+                onClick={() => addToCart(item)}
+                style={{
+                  marginTop: "10px",
+                  padding: "8px 12px",
+                  borderRadius: "6px",
+                  border: "none",
+                  backgroundColor: "#1e1e2f",
+                  color: "white",
+                  cursor: "pointer",
+                }}
+              >
+                Agregar al carrito
+              </button>
+            )}
           </Tarjeta>
         ))}
       </Grid>
+
     </InventarioContainer>
   );
 };
