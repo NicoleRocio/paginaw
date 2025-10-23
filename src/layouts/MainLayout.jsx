@@ -1,17 +1,29 @@
 import { useState, useEffect, useRef, useContext } from "react";
-import styled from "styled-components";
+import styled, { keyframes } from "styled-components";
 import { useNavigate } from "react-router-dom";
-import { FaBars, FaUserCircle, FaShoppingCart } from "react-icons/fa";
+import { FaBars, FaUserCircle, FaShoppingCart, FaTrash } from "react-icons/fa";
 import Sidebar from "../components/Sidebar";
 import logoColegio from "../assets/logo-colegio.png";
 import { CartContext } from "../context/CartContext";
 
+// ======= ANIMACIÓN =======
+const slideDown = keyframes`
+  from {
+    opacity: 0;
+    transform: translateY(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+`;
+
 const LayoutContainer = styled.div`
-  display: flex;           /* sidebar y main content lado a lado */
-  height: 100vh;           /* toda la altura del viewport */
+  display: flex;
+  height: 100vh;
   width: 100%;
   background-color: #f4f4f9;
-  overflow: hidden;        /* evita scroll general */
+  overflow: hidden;
 `;
 
 const TopBar = styled.div`
@@ -21,7 +33,6 @@ const TopBar = styled.div`
   display: flex;
   align-items: center;
   justify-content: space-between;
-
   position: fixed;
   top: 0;
   left: 0;
@@ -33,12 +44,11 @@ const TopBar = styled.div`
 const MainContent = styled.div`
   flex: 1;
   padding: 20px;
-  margin-left: ${({ isOpen }) => (isOpen ? "250px" : "0")}; /* espacio para sidebar */
-  margin-top: 60px;        /* altura del TopBar */
-  height: calc(100vh - 60px); /* todo menos TopBar */
-  overflow-y: auto;        /* scroll solo dentro del contenido */
+  margin-left: ${({ isOpen }) => (isOpen ? "250px" : "0")};
+  margin-top: 60px;
+  height: calc(100vh - 60px);
+  overflow-y: auto;
 `;
-
 
 const LeftSection = styled.div`
   display: flex;
@@ -70,7 +80,6 @@ const RightSection = styled.div`
   align-items: center;
   position: relative;
   margin-right: 40px;
-  cursor: pointer;
 `;
 
 const UserBox = styled.div`
@@ -81,6 +90,7 @@ const UserBox = styled.div`
   border-radius: 25px;
   gap: 10px;
   transition: background 0.3s;
+  cursor: pointer;
 
   &:hover {
     background-color: #3f3f5a;
@@ -117,10 +127,65 @@ const DropdownItem = styled.div`
   }
 `;
 
+// ===== MODAL DEL CARRITO =====
+const Overlay = styled.div`
+  position: fixed;
+  top: 60px;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  background: rgba(0, 0, 0, 0.2);
+  z-index: 999;
+`;
+
+const ModalCarrito = styled.div`
+  position: fixed;
+  top: 70px;
+  right: 20px;
+  width: 350px;
+  background-color: #2d2d44;
+  color: white;
+  border-radius: 10px;
+  box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.4);
+  animation: ${slideDown} 0.3s ease;
+  z-index: 1000;
+  padding: 15px;
+  max-height: 400px;
+  overflow-y: auto;
+`;
+
+const ItemCarrito = styled.div`
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background-color: #1e1e2f;
+  padding: 8px 10px;
+  border-radius: 6px;
+  margin-bottom: 10px;
+`;
+
+const BotonAccion = styled.button`
+  background-color: ${({ color }) => color || "#1e1e2f"};
+  color: white;
+  border: none;
+  border-radius: 6px;
+  padding: 8px 10px;
+  cursor: pointer;
+  margin-top: 8px;
+  width: 100%;
+  transition: background 0.3s;
+  font-weight: 500;
+
+  &:hover {
+    background-color: #3f3f5a;
+  }
+`;
+
 const MainLayout = ({ children }) => {
-  const { cartItems } = useContext(CartContext);
+  const { cartItems, removeFromCart, clearCart } = useContext(CartContext);
   const [isOpen, setIsOpen] = useState(false);
   const [dropdownOpen, setDropdownOpen] = useState(false);
+  const [carritoVisible, setCarritoVisible] = useState(false);
   const userRef = useRef();
   const usuario = "Nicole Rocio Vilcahuaman Remigio";
   const navigate = useNavigate();
@@ -128,15 +193,22 @@ const MainLayout = ({ children }) => {
   const toggleMenu = () => setIsOpen(!isOpen);
   const toggleDropdown = () => setDropdownOpen(!dropdownOpen);
 
+  const toggleCarrito = (e) => {
+    e.stopPropagation();
+    setCarritoVisible(!carritoVisible);
+  };
+
+  // Cierra el modal al hacer click fuera
   useEffect(() => {
-    const handleClickOutside = (event) => {
-      if (userRef.current && !userRef.current.contains(event.target)) {
+    const handleClickOutside = (e) => {
+      if (carritoVisible) setCarritoVisible(false);
+      if (userRef.current && !userRef.current.contains(e.target)) {
         setDropdownOpen(false);
       }
     };
     document.addEventListener("click", handleClickOutside);
     return () => document.removeEventListener("click", handleClickOutside);
-  }, []);
+  }, [carritoVisible]);
 
   return (
     <LayoutContainer>
@@ -148,18 +220,17 @@ const MainLayout = ({ children }) => {
             onClick={() => navigate("/")}
             style={{ cursor: "pointer" }}
           />
-
           <MenuButton onClick={toggleMenu}>
             <FaBars />
           </MenuButton>
         </LeftSection>
 
-        <RightSection ref={userRef} onClick={toggleDropdown}>
-          <UserBox>
-            <span>{usuario}</span>
-            <FaUserCircle size={28} />
-          </UserBox>
-          <div style={{ position: "relative", marginRight: "20px", cursor: "pointer" }}>
+        <RightSection ref={userRef}>
+          {/* Ícono del carrito */}
+          <div
+            style={{ position: "relative", marginRight: "20px", cursor: "pointer" }}
+            onClick={toggleCarrito}
+          >
             <FaShoppingCart size={28} />
             {cartItems.length > 0 && (
               <span
@@ -179,6 +250,11 @@ const MainLayout = ({ children }) => {
             )}
           </div>
 
+          <UserBox onClick={toggleDropdown}>
+            <span>{usuario}</span>
+            <FaUserCircle size={28} />
+          </UserBox>
+
           <UserDropdown open={dropdownOpen}>
             <DropdownItem>Perfil</DropdownItem>
             <DropdownItem>Cambiar contraseña</DropdownItem>
@@ -190,6 +266,45 @@ const MainLayout = ({ children }) => {
       <Sidebar isOpen={isOpen} usuario={usuario} />
 
       <MainContent isOpen={isOpen}>{children}</MainContent>
+
+      {/* Modal flotante del carrito */}
+      {carritoVisible && (
+        <>
+          <Overlay onClick={() => setCarritoVisible(false)} />
+          <ModalCarrito onClick={(e) => e.stopPropagation()}>
+            <h3 style={{ textAlign: "center", marginBottom: "10px" }}>Carrito</h3>
+            {cartItems.length === 0 ? (
+              <p style={{ textAlign: "center" }}>No hay productos en el carrito.</p>
+            ) : (
+              <>
+                {cartItems.map((item) => (
+                  <ItemCarrito key={item.id}>
+                    <span>{item.nombre}</span>
+                    <button
+                      onClick={() => removeFromCart(item.id)}
+                      style={{
+                        background: "none",
+                        border: "none",
+                        color: "#ff6b6b",
+                        cursor: "pointer",
+                      }}
+                    >
+                      <FaTrash />
+                    </button>
+                  </ItemCarrito>
+                ))}
+
+                <BotonAccion color="#3f3f5a" onClick={clearCart}>
+                  Vaciar carrito
+                </BotonAccion>
+                <BotonAccion onClick={() => navigate("/pedidos")}>
+                  Hacer pedido
+                </BotonAccion>
+              </>
+            )}
+          </ModalCarrito>
+        </>
+      )}
     </LayoutContainer>
   );
 };

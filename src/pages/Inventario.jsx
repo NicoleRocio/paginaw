@@ -130,7 +130,6 @@ const Inventario = () => {
     sedeSeleccionada === "todas"
       ? dispositivos
       : dispositivos.filter((item) => item.sede === sedeSeleccionada);
-
   return (
     <InventarioContainer>
       <Titulo>INVENTARIO DE EQUIPOS TECNOLÓGICOS</Titulo>
