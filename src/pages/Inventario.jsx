@@ -1,6 +1,7 @@
-import { useState, useContext } from "react";
+import { useState, useEffect, useContext } from "react";
 import styled from "styled-components";
 import { CartContext } from "../context/CartContext";
+import { getProductos  } from "../service/productoService";
 
 const InventarioContainer = styled.div`
   padding: 30px;
@@ -87,49 +88,45 @@ const Stock = styled.span`
   font-size: 0.9rem;
 `;
 
+const Boton = styled.button`
+  margin-top: 10px;
+  padding: 8px 12px;
+  border-radius: 6px;
+  border: none;
+  background-color: #1e1e2f;
+  color: white;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+
+  &:hover {
+    background-color: #333355;
+  }
+`;
+
 const Inventario = () => {
   const [sedeSeleccionada, setSedeSeleccionada] = useState("todas");
+  const [productos, setProductos] = useState([]);
   const { addToCart } = useContext(CartContext);
 
-  const dispositivos = [
-    {
-      id: 1,
-      nombre: "Laptop Lenovo ThinkPad",
-      descripcion: "Core i5, 8GB RAM, SSD 256GB",
-      stock: 4,
-      sede: "colegio",
-      imagen: "https://cdn-icons-png.flaticon.com/512/2933/2933245.png",
-    },
-    {
-      id: 2,
-      nombre: "Monitor Samsung 24''",
-      descripcion: "Full HD, HDMI/VGA",
-      stock: 10,
-      sede: "academia",
-      imagen: "https://cdn-icons-png.flaticon.com/512/227/227421.png",
-    },
-    {
-      id: 3,
-      nombre: "Proyector Epson X05",
-      descripcion: "Resolución XGA, 3300 lúmenes",
-      stock: 0,
-      sede: "colegio",
-      imagen: "https://cdn-icons-png.flaticon.com/512/4341/4341078.png",
-    },
-    {
-      id: 4,
-      nombre: "Impresora HP LaserJet",
-      descripcion: "Tóner negro, conexión Wi-Fi",
-      stock: 5,
-      sede: "academia",
-      imagen: "https://cdn-icons-png.flaticon.com/512/809/809908.png",
-    },
-  ];
+  // ✅ Cargar productos desde el backend
+  useEffect(() => {
+    const fetchProductos = async () => {
+      try {
+        const data = await getProductos ();
+        setProductos(data);
+      } catch (error) {
+        console.error("Error al cargar productos:", error);
+      }
+    };
+    fetchProductos();
+  }, []);
 
-  const dispositivosFiltrados =
+  // Filtrar por sede
+  const productosFiltrados =
     sedeSeleccionada === "todas"
-      ? dispositivos
-      : dispositivos.filter((item) => item.sede === sedeSeleccionada);
+      ? productos
+      : productos.filter((item) => item.sede === sedeSeleccionada);
+
   return (
     <InventarioContainer>
       <Titulo>INVENTARIO DE EQUIPOS TECNOLÓGICOS</Titulo>
@@ -141,15 +138,22 @@ const Inventario = () => {
           onChange={(e) => setSedeSeleccionada(e.target.value)}
         >
           <option value="todas">Todas</option>
-          <option value="colegio">Colegio Zárate</option>
-          <option value="academia">Academia Zárate</option>
+          <option value="Lima">Lima</option>
+          <option value="Arequipa">Arequipa</option>
+          <option value="Cusco">Cusco</option>
         </Select>
       </FiltroContainer>
 
       <Grid>
-        {dispositivosFiltrados.map((item) => (
+        {productosFiltrados.map((item) => (
           <Tarjeta key={item.id}>
-            <Imagen src={item.imagen} alt={item.nombre} />
+            <Imagen
+              src={
+                item.imagen ||
+                "https://cdn-icons-png.flaticon.com/512/2920/2920322.png"
+              }
+              alt={item.nombre}
+            />
             <Nombre>{item.nombre}</Nombre>
             <Descripcion>{item.descripcion}</Descripcion>
             <Stock stock={item.stock}>
@@ -158,27 +162,12 @@ const Inventario = () => {
                 : "Sin stock disponible"}
             </Stock>
 
-            {/* Botón Agregar al carrito */}
             {item.stock > 0 && (
-              <button
-                onClick={() => addToCart(item)}
-                style={{
-                  marginTop: "10px",
-                  padding: "8px 12px",
-                  borderRadius: "6px",
-                  border: "none",
-                  backgroundColor: "#1e1e2f",
-                  color: "white",
-                  cursor: "pointer",
-                }}
-              >
-                Agregar al carrito
-              </button>
+              <Boton onClick={() => addToCart(item)}>Agregar al carrito</Boton>
             )}
           </Tarjeta>
         ))}
       </Grid>
-
     </InventarioContainer>
   );
 };
