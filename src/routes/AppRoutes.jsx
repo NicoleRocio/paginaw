@@ -1,19 +1,36 @@
+// src/routes/AppRoutes.jsx
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import MainLayout from "../layouts/MainLayout";
 import Home from "../pages/Home";
 import Inventario from "../pages/Inventario";
 import Mispedidos from "../pages/MisPedidos";
+import Asistencia from "../pages/Asistencia";
+import Justificaciones from "../pages/Justificaciones";
+import Login from "../pages/Login";
 
 const AppRoutes = () => {
   return (
     <Router>
-      <MainLayout>
-        <Routes>
-          <Route path="/" element={<Home />} />
-          <Route path="/inventario" element={<Inventario />} />
-          <Route path="/pedidos" element={<Mispedidos />} />
-        </Routes>
-      </MainLayout>
+      <Routes>
+        {/* 🔹 Login sin el MainLayout */}
+        <Route path="/login" element={<Login />} />
+
+        {/* 🔹 Resto de páginas con el layout principal */}
+        <Route
+          path="/*"
+          element={
+            <MainLayout>
+              <Routes>
+                <Route path="/" element={<Home />} />
+                <Route path="/inventario" element={<Inventario />} />
+                <Route path="/pedidos" element={<Mispedidos />} />
+                <Route path="/asistencia" element={<Asistencia />} />
+                <Route path="/justificaciones" element={<Justificaciones />} />
+              </Routes>
+            </MainLayout>
+          }
+        />
+      </Routes>
     </Router>
   );
 };

@@ -180,7 +180,7 @@ const MisPedidos = () => {
 
   return (
     <Contenedor>
-      <Titulo>🧾 Mis Pedidos</Titulo>
+      <Titulo> MIS PEDIDOS</Titulo>
 
       {cartItems.length === 0 ? (
         <p style={{ textAlign: "center", color: "#555" }}>

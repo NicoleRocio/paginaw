@@ -104,13 +104,24 @@ const Sidebar = ({ isOpen, usuario }) => {
       </MenuItem>
       <SubMenu isOpen={openMenu === "pedidos"}></SubMenu>
 
-      <MenuItem onClick={() => toggleMenu("asistencia")}>
+      <MenuItem
+        onClick={() => {
+          navigate("/asistencia");
+          toggleMenu("asistencia");
+        }}
+      >
         Asistencia
         {openMenu === "asistencia" ? <FaChevronUp /> : <FaChevronDown />}
       </MenuItem>
       <SubMenu isOpen={openMenu === "asistencia"}>
-        <SubMenuItem>Justificaciones</SubMenuItem>
+        <SubMenuItem onClick={() => navigate("/asistencia")}>
+          Ver asistencia
+        </SubMenuItem>
+        <SubMenuItem onClick={() => navigate("/justificaciones")}>
+          Justificaciones
+        </SubMenuItem>
       </SubMenu>
+
 
       <MenuItem onClick={() => toggleMenu("soporte")}>
         Mantenimiento y Soporte
