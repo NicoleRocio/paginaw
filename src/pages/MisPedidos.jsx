@@ -2,6 +2,8 @@ import { useContext, useState, useEffect } from "react";
 import styled, { keyframes } from "styled-components";
 import { CartContext } from "../context/CartContext";
 import { FaTrash, FaCheckCircle, FaClock } from "react-icons/fa";
+import { crearPedido, getPedidos } from "../service/pedidoService";
+import { getProductos } from "../service/productoService";
 
 const fadeIn = keyframes`
   from { opacity: 0; transform: translateY(-10px); }
@@ -111,80 +113,85 @@ const FechaPedido = styled.div`
   color: #3f3f5a;
 `;
 
-const BotonBorrarHistorial = styled.button`
-  background-color: #ff6b6b;
-  color: white;
-  border: none;
-  border-radius: 8px;
-  padding: 10px 16px;
-  font-size: 0.9rem;
-  cursor: pointer;
-  margin: 20px auto;
+const InputCliente = styled.input`
   display: block;
-  transition: background 0.3s;
-
-  &:hover {
-    background-color: #ff3b3b;
-  }
+  margin: 15px auto;
+  padding: 10px;
+  width: 60%;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  text-align: center;
+  font-size: 1rem;
 `;
 
 const MisPedidos = () => {
   const { cartItems, removeFromCart, clearCart } = useContext(CartContext);
   const [mostrarToast, setMostrarToast] = useState(false);
   const [historial, setHistorial] = useState([]);
+  const [cliente, setCliente] = useState("");
 
-  // ✅ Cargar historial solo una vez (al montar)
+  // ✅ Cargar historial desde backend
   useEffect(() => {
-    const guardado = localStorage.getItem("historialPedidos");
-    if (guardado) {
-      try {
-        setHistorial(JSON.parse(guardado));
-      } catch (e) {
-        console.error("Error al cargar historial:", e);
-        setHistorial([]);
-      }
-    }
+    cargarPedidos();
   }, []);
 
-  // ✅ Guardar historial cada vez que cambie
-  useEffect(() => {
-    localStorage.setItem("historialPedidos", JSON.stringify(historial));
-  }, [historial]);
-
-  const handleEnviarPedido = () => {
-    if (cartItems.length === 0) return;
-
-    const nuevoPedido = {
-      id: Date.now(),
-      fecha: new Date().toLocaleString(),
-      productos: [...cartItems],
-    };
-
-    // 🔹 Usar función que garantiza el historial actualizado
-    setHistorial((prev) => {
-      const actualizado = [nuevoPedido, ...prev];
-      localStorage.setItem("historialPedidos", JSON.stringify(actualizado));
-      return actualizado;
-    });
-
-    clearCart();
-
-    setMostrarToast(true);
-    setTimeout(() => setMostrarToast(false), 2500);
+  const cargarPedidos = async () => {
+    try {
+      const data = await getPedidos();
+      setHistorial(data);
+    } catch (error) {
+      console.error("Error al cargar pedidos:", error);
+    }
   };
 
-  const handleBorrarHistorial = () => {
-    setHistorial([]);
-    localStorage.removeItem("historialPedidos");
+  // ✅ Enviar pedido al backend
+  const handleEnviarPedido = async () => {
+    if (cartItems.length === 0) {
+      alert("No hay productos en el carrito");
+      return;
+    }
+
+    if (!cliente.trim()) {
+      alert("Por favor, ingresa el nombre del cliente");
+      return;
+    }
+
+    // Estructura del pedido para el backend
+    const nuevoPedido = {
+      cliente,
+      detalles: cartItems.map((item) => ({
+        producto: { id: item.id },
+        cantidad: item.cantidad || 1,
+      })),
+    };
+
+    try {
+      await crearPedido(nuevoPedido);
+      setMostrarToast(true);
+      setTimeout(() => setMostrarToast(false), 2500);
+      clearCart();
+      setCliente("");
+      cargarPedidos();
+    } catch (error) {
+      console.error("Error al registrar pedido:", error);
+      alert("Ocurrió un error al enviar el pedido");
+    }
   };
 
   return (
     <Contenedor>
       <Titulo> MIS PEDIDOS</Titulo>
 
+      <InputCliente
+        type="text"
+        placeholder="Nombre del cliente"
+        value={cliente}
+        onChange={(e) => setCliente(e.target.value)}
+      />
+
       {cartItems.length === 0 ? (
         <p style={{ textAlign: "center", color: "#555" }}>
-          No tienes ningún pedido en este momento.
+          No tienes productos en el carrito.
         </p>
       ) : (
         <>
@@ -194,7 +201,7 @@ const MisPedidos = () => {
                 <div>
                   <strong>{item.nombre}</strong>
                   <p style={{ margin: 0, fontSize: "0.9rem" }}>
-                    Cantidad: {item.cantidad}
+                    Cantidad: {item.cantidad || 1}
                   </p>
                 </div>
                 <BotonEliminar onClick={() => removeFromCart(item.id)}>
@@ -205,33 +212,32 @@ const MisPedidos = () => {
           </ListaPedidos>
 
           <BotonPrincipal onClick={handleEnviarPedido}>
-            Enviar solicitud
+            Enviar pedido al servidor
           </BotonPrincipal>
         </>
       )}
 
       {historial.length > 0 && (
         <>
-          <HistorialTitulo>📦 Historial de pedidos enviados</HistorialTitulo>
+          <HistorialTitulo>📦 Pedidos registrados</HistorialTitulo>
 
           {historial.map((pedido) => (
             <PedidoHistorial key={pedido.id}>
               <FechaPedido>
-                <FaClock /> {pedido.fecha}
+                <FaClock /> {new Date(pedido.fecha).toLocaleString()}
               </FechaPedido>
+              <p>
+                <strong>Cliente:</strong> {pedido.cliente}
+              </p>
               <ul style={{ margin: 0, paddingLeft: "20px" }}>
-                {pedido.productos.map((p) => (
-                  <li key={p.id}>
-                    {p.nombre} — Cantidad: {p.cantidad}
+                {pedido.detalles.map((d, i) => (
+                  <li key={i}>
+                    {d.producto?.nombre} — {d.cantidad} unidades
                   </li>
                 ))}
               </ul>
             </PedidoHistorial>
           ))}
-
-          <BotonBorrarHistorial onClick={handleBorrarHistorial}>
-            🗑️ Borrar historial
-          </BotonBorrarHistorial>
         </>
       )}
 
