@@ -1,5 +1,6 @@
 import styled from "styled-components";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { getAsistencias } from "../service/asistenciaService"; // ✅ Importa tu servicio
 
 const Container = styled.div`
   display: flex;
@@ -79,7 +80,6 @@ const FieldValue = styled.span`
   font-weight: 500;
 `;
 
-// 🔹 Botón animado moderno
 const Button = styled.button`
   background-color: #6c63ff;
   color: white;
@@ -105,14 +105,19 @@ const Button = styled.button`
 
 const Asistencia = ({ usuario }) => {
   const [fechaFiltro, setFechaFiltro] = useState("");
+  const [asistencias, setAsistencias] = useState([]);
 
-  const datos = {
-    nombre: usuario || "NICOLE ROCIO",
-    estado: "Presente",
-    fecha: "2025-10-28",
-    horaIngreso: "08:00 AM",
-    horaSalida: "05:00 PM",
-  };
+  // ✅ Cargar asistencias desde el backend
+  useEffect(() => {
+    getAsistencias()
+      .then((data) => setAsistencias(data))
+      .catch((err) => console.error("Error cargando asistencias:", err));
+  }, []);
+
+  // ✅ Filtrado opcional por fecha
+  const asistenciasFiltradas = fechaFiltro
+    ? asistencias.filter((a) => a.fecha === fechaFiltro)
+    : asistencias;
 
   return (
     <Container>
@@ -127,30 +132,35 @@ const Asistencia = ({ usuario }) => {
         />
       </FilterBox>
 
-      <Card>
-        <Row>
-          <FieldLabel>Nombre:</FieldLabel>
-          <FieldValue>{datos.nombre}</FieldValue>
-        </Row>
-        <Row>
-          <FieldLabel>Estado:</FieldLabel>
-          <FieldValue>{datos.estado}</FieldValue>
-        </Row>
-        <Row>
-          <FieldLabel>Fecha:</FieldLabel>
-          <FieldValue>{datos.fecha}</FieldValue>
-        </Row>
-        <Row>
-          <FieldLabel>Hora de ingreso:</FieldLabel>
-          <FieldValue>{datos.horaIngreso}</FieldValue>
-        </Row>
-        <Row>
-          <FieldLabel>Hora de salida:</FieldLabel>
-          <FieldValue>{datos.horaSalida}</FieldValue>
-        </Row>
-      </Card>
+      {asistenciasFiltradas.length > 0 ? (
+        asistenciasFiltradas.map((a) => (
+          <Card key={a.id}>
+            <Row>
+              <FieldLabel>Nombre:</FieldLabel>
+              <FieldValue>{a.empleado?.nombre}</FieldValue>
+            </Row>
+            <Row>
+              <FieldLabel>Estado:</FieldLabel>
+              <FieldValue>{a.estado}</FieldValue>
+            </Row>
+            <Row>
+              <FieldLabel>Fecha:</FieldLabel>
+              <FieldValue>{a.fecha}</FieldValue>
+            </Row>
+            <Row>
+              <FieldLabel>Hora de ingreso:</FieldLabel>
+              <FieldValue>{a.horaIngreso}</FieldValue>
+            </Row>
+            <Row>
+              <FieldLabel>Hora de salida:</FieldLabel>
+              <FieldValue>{a.horaSalida}</FieldValue>
+            </Row>
+          </Card>
+        ))
+      ) : (
+        <p>No hay registros de asistencia</p>
+      )}
 
-      {/* 🔹 Botón moderno animado */}
       <Button>Descargar reporte</Button>
     </Container>
   );
