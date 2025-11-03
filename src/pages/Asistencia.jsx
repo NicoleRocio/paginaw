@@ -9,7 +9,7 @@ const Container = styled.div`
   padding: 30px;
   gap: 25px;
   background-color: #f4f5fa;
-  min-height: 100vh;
+  min-height: 10vh;
 `;
 
 const Title = styled.h2`

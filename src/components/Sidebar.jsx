@@ -12,15 +12,13 @@ const SidebarContainer = styled.div`
   flex-direction: column;
   padding: ${({ isOpen }) => (isOpen ? "20px" : "0")};
   position: fixed;
-  top: 80px; /* justo debajo del TopBar */
+  top: 80px;
   left: 0;
   transition: all 0.3s ease;
   overflow-y: auto;
   z-index: 15;
   box-sizing: border-box;
 `;
-
-
 
 const UserInfo = styled.div`
   text-align: center;
@@ -91,7 +89,6 @@ const Sidebar = ({ isOpen, usuario }) => {
         Inventario
         {openMenu === "inventario" ? <FaChevronUp /> : <FaChevronDown />}
       </MenuItem>
-      <SubMenu isOpen={openMenu === "inventario"}></SubMenu>
 
       <MenuItem
         onClick={() => {
@@ -102,7 +99,6 @@ const Sidebar = ({ isOpen, usuario }) => {
         Mis pedidos
         {openMenu === "pedidos" ? <FaChevronUp /> : <FaChevronDown />}
       </MenuItem>
-      <SubMenu isOpen={openMenu === "pedidos"}></SubMenu>
 
       <MenuItem
         onClick={() => {
@@ -122,14 +118,20 @@ const Sidebar = ({ isOpen, usuario }) => {
         </SubMenuItem>
       </SubMenu>
 
-
       <MenuItem onClick={() => toggleMenu("soporte")}>
         Mantenimiento y Soporte
         {openMenu === "soporte" ? <FaChevronUp /> : <FaChevronDown />}
       </MenuItem>
+
       <SubMenu isOpen={openMenu === "soporte"}>
-        <SubMenuItem>Generar incidencias</SubMenuItem>
-        <SubMenuItem>Lista de incidencias generadas por usuarios</SubMenuItem>
+        {/* 🔹 Redirección al formulario */}
+        <SubMenuItem onClick={() => navigate("/generar-incidencia")}>
+          Generar incidencias
+        </SubMenuItem>
+
+        <SubMenuItem onClick={() => navigate("/lista-incidencias")}>
+          Lista de incidencias generadas por usuarios
+        </SubMenuItem>
       </SubMenu>
     </SidebarContainer>
   );

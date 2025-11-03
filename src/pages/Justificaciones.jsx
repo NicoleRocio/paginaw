@@ -7,7 +7,7 @@ const Container = styled.div`
   flex-direction: column;
   align-items: center;
   background-color: #f7f8fa;
-  min-height: 100vh;
+  min-height: 10vh;
 `;
 
 const Title = styled.h2`

@@ -7,6 +7,8 @@ import Mispedidos from "../pages/MisPedidos";
 import Asistencia from "../pages/Asistencia";
 import Justificaciones from "../pages/Justificaciones";
 import Login from "../pages/Login";
+import GenerarIncidencia  from "../pages/GenerarIncidencia";
+import ListaIncidencias  from "../pages/ListaIncidencias";
 
 const AppRoutes = () => {
   return (
@@ -26,6 +28,8 @@ const AppRoutes = () => {
                 <Route path="/pedidos" element={<Mispedidos />} />
                 <Route path="/asistencia" element={<Asistencia />} />
                 <Route path="/justificaciones" element={<Justificaciones />} />
+                <Route path="/generar-incidencia" element={<GenerarIncidencia />} />
+                <Route path="/lista-incidencias" element={<ListaIncidencias />} />
               </Routes>
             </MainLayout>
           }
