@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef, useContext } from "react";
+import { useNavigate, Outlet } from "react-router-dom";
 import styled, { keyframes } from "styled-components";
-import { useNavigate } from "react-router-dom";
 import { FaBars, FaUserCircle, FaShoppingCart, FaTrash } from "react-icons/fa";
 import Sidebar from "../components/Sidebar";
 import logoColegio from "../assets/logo-colegio.png";
@@ -181,14 +181,24 @@ const BotonAccion = styled.button`
   }
 `;
 
-const MainLayout = ({ children }) => {
+const MainLayout = () => {
   const { cartItems, removeFromCart, clearCart } = useContext(CartContext);
   const [isOpen, setIsOpen] = useState(false);
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [carritoVisible, setCarritoVisible] = useState(false);
   const userRef = useRef();
-  const usuario = "Nicole Rocio Vilcahuaman Remigio";
+  const [usuario, setUsuario] = useState(null);
   const navigate = useNavigate();
+
+  // ✅ Cargar usuario al iniciar
+  useEffect(() => {
+    const storedUser = localStorage.getItem("usuario");
+    if (storedUser) {
+      setUsuario(JSON.parse(storedUser));
+    } else {
+      navigate("/login"); // Si no hay sesión, redirige
+    }
+  }, [navigate]);
 
   const toggleMenu = () => setIsOpen(!isOpen);
   const toggleDropdown = () => setDropdownOpen(!dropdownOpen);
@@ -198,7 +208,7 @@ const MainLayout = ({ children }) => {
     setCarritoVisible(!carritoVisible);
   };
 
-  // Cierra el modal al hacer click fuera
+  // ✅ Cierra el modal y dropdown al hacer click fuera
   useEffect(() => {
     const handleClickOutside = (e) => {
       if (carritoVisible) setCarritoVisible(false);
@@ -212,12 +222,13 @@ const MainLayout = ({ children }) => {
 
   return (
     <LayoutContainer>
+      {/* ===== Barra superior ===== */}
       <TopBar>
         <LeftSection>
           <Logo
             src={logoColegio}
             alt="Logo del Colegio"
-            onClick={() => navigate("/")}
+            onClick={() => navigate("/home")}
             style={{ cursor: "pointer" }}
           />
           <MenuButton onClick={toggleMenu}>
@@ -250,24 +261,48 @@ const MainLayout = ({ children }) => {
             )}
           </div>
 
+          {/* Usuario */}
           <UserBox onClick={toggleDropdown}>
-            <span>{usuario}</span>
+            <div style={{ textAlign: "right" }}>
+              {usuario ? (
+                <>
+                  <span style={{ fontWeight: "600" }}>{usuario.nombre}</span>
+                  <div style={{ fontSize: "0.8rem", color: "#ccc" }}>
+                    {usuario.empleado?.roles[0]?.nombre}
+                  </div>
+                </>
+              ) : (
+                <span>Cargando...</span>
+              )}
+            </div>
             <FaUserCircle size={28} />
           </UserBox>
 
+          {/* Menú desplegable */}
           <UserDropdown open={dropdownOpen}>
             <DropdownItem>Perfil</DropdownItem>
             <DropdownItem>Cambiar contraseña</DropdownItem>
-            <DropdownItem>Cerrar sesión</DropdownItem>
+            <DropdownItem
+              onClick={() => {
+                localStorage.removeItem("usuario");
+                navigate("/login");
+              }}
+            >
+              Cerrar sesión
+            </DropdownItem>
           </UserDropdown>
         </RightSection>
       </TopBar>
 
+      {/* ===== Sidebar ===== */}
       <Sidebar isOpen={isOpen} usuario={usuario} />
 
-      <MainContent isOpen={isOpen}>{children}</MainContent>
+      {/* ===== Contenido dinámico ===== */}
+      <MainContent isOpen={isOpen}>
+        <Outlet />
+      </MainContent>
 
-      {/* Modal flotante del carrito */}
+      {/* ===== Modal del carrito ===== */}
       {carritoVisible && (
         <>
           <Overlay onClick={() => setCarritoVisible(false)} />

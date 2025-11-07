@@ -3,7 +3,7 @@ import { useState } from "react";
 import styled from "styled-components";
 import { useNavigate } from "react-router-dom";
 
-// 🔹 Contenedor general: divide pantalla en dos partes
+// 🎨 Estilos
 const Container = styled.div`
   display: flex;
   height: 100vh;
@@ -11,7 +11,6 @@ const Container = styled.div`
   overflow: hidden;
 `;
 
-// 🔹 Panel izquierdo (formulario)
 const LeftPanel = styled.div`
   flex: 1;
   background: #ffffff;
@@ -24,7 +23,6 @@ const LeftPanel = styled.div`
   z-index: 2;
 `;
 
-// 🔹 Panel derecho (imagen de fondo)
 const RightPanel = styled.div`
   flex: 1.3;
   background-image: url("https://images.unsplash.com/photo-1591696205602-2f950c417cb9?auto=format&fit=crop&w=1500&q=80");
@@ -41,7 +39,6 @@ const RightPanel = styled.div`
   }
 `;
 
-// 🔹 Tarjeta del login
 const Card = styled.div`
   width: 100%;
   max-width: 400px;
@@ -85,23 +82,6 @@ const Input = styled.input`
   }
 `;
 
-const Select = styled.select`
-  width: 100%;
-  padding: 13px;
-  border-radius: 10px;
-  border: 1px solid #ccc;
-  background: #f5f7fa;
-  color: #333;
-  font-size: 1rem;
-  margin-bottom: 20px;
-
-  &:focus {
-    outline: none;
-    border-color: #4a6cf7;
-    background: #fff;
-  }
-`;
-
 const Button = styled.button`
   background: linear-gradient(135deg, #4a6cf7, #6c8efb);
   color: white;
@@ -127,30 +107,43 @@ const Message = styled.p`
   margin-top: 10px;
 `;
 
-// 🔹 Componente principal
 const Login = () => {
   const [usuario, setUsuario] = useState("");
   const [password, setPassword] = useState("");
-  const [rol, setRol] = useState("usuario");
   const [error, setError] = useState("");
   const navigate = useNavigate();
 
-  const handleLogin = (e) => {
+  const handleLogin = async (e) => {
     e.preventDefault();
+    setError("");
 
-    if (usuario === "" || password === "") {
-      setError("Por favor, completa todos los campos.");
+    if (!usuario || !password) {
+      setError("Por favor, complete todos los campos.");
       return;
     }
 
-    if (usuario === "admin" && password === "12345") {
-      localStorage.setItem("rol", "admin");
-      navigate("/");
-    } else if (usuario === "user" && password === "12345") {
-      localStorage.setItem("rol", "usuario");
-      navigate("/");
-    } else {
-      setError("Credenciales incorrectas. Inténtalo nuevamente.");
+    try {
+      const response = await fetch("http://localhost:8080/api/usuarios/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ username: usuario, password }),
+      });
+
+      if (!response.ok) {
+        setError("Usuario o contraseña incorrectos");
+        return;
+      }
+
+      const data = await response.json();
+
+      // ✅ Guardar datos del usuario (desde la base de datos)
+      localStorage.setItem("usuario", JSON.stringify(data));
+
+      // ✅ Redirigir al Home
+      navigate("/home");
+    } catch (error) {
+      console.error(error);
+      setError("Error al conectar con el servidor");
     }
   };
 
@@ -175,12 +168,6 @@ const Login = () => {
               value={password}
               onChange={(e) => setPassword(e.target.value)}
             />
-
-            <Label>Rol:</Label>
-            <Select value={rol} onChange={(e) => setRol(e.target.value)}>
-              <option value="usuario">Usuario</option>
-              <option value="admin">Administrador</option>
-            </Select>
 
             <Button type="submit">Ingresar</Button>
             {error && <Message>{error}</Message>}

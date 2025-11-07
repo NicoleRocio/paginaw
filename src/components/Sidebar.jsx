@@ -29,9 +29,15 @@ const UserInfo = styled.div`
 
 const UserName = styled.h3`
   font-size: 1rem;
-  font-weight: 500;
+  font-weight: 600;
   margin: 0;
   color: #ffffff;
+`;
+
+const UserRole = styled.p`
+  font-size: 0.9rem;
+  color: #b0b0b0;
+  margin-top: 5px;
 `;
 
 const MenuItem = styled.div`
@@ -72,13 +78,29 @@ const Sidebar = ({ isOpen, usuario }) => {
 
   const toggleMenu = (menu) => setOpenMenu(openMenu === menu ? null : menu);
 
+  // 🔹 Si no hay usuario, evita errores
+  if (!usuario) {
+    return (
+      <SidebarContainer isOpen={isOpen}>
+        <UserInfo>
+          <UserName>Cargando...</UserName>
+        </UserInfo>
+      </SidebarContainer>
+    );
+  }
+
+  // 🔹 Si existe usuario, muestra su nombre y rol
+  const nombreUsuario = usuario?.nombre || "Usuario";
+  const rolUsuario = usuario?.empleado?.roles?.[0]?.nombre || "Sin rol";
+
   return (
     <SidebarContainer isOpen={isOpen}>
       <UserInfo>
-        <UserName>{usuario}</UserName>
+        <UserName>{nombreUsuario}</UserName>
+        <UserRole>{rolUsuario}</UserRole>
       </UserInfo>
 
-      <MenuItem onClick={() => navigate("/")}>Inicio</MenuItem>
+      <MenuItem onClick={() => navigate("/home")}>Inicio</MenuItem>
 
       <MenuItem
         onClick={() => {
@@ -124,7 +146,6 @@ const Sidebar = ({ isOpen, usuario }) => {
       </MenuItem>
 
       <SubMenu isOpen={openMenu === "soporte"}>
-        {/* 🔹 Redirección al formulario */}
         <SubMenuItem onClick={() => navigate("/generar-incidencia")}>
           Generar incidencias
         </SubMenuItem>
