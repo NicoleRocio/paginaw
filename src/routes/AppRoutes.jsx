@@ -1,4 +1,3 @@
-// src/routes/AppRoutes.jsx
 import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
 import MainLayout from "../layouts/MainLayout";
 import Home from "../pages/Home";
@@ -9,29 +8,32 @@ import Justificaciones from "../pages/Justificaciones";
 import Login from "../pages/Login";
 import GenerarIncidencia from "../pages/GenerarIncidencia";
 import ListaIncidencias from "../pages/ListaIncidencias";
+import PrivateRoute from "./PrivateRoute"; // 🔹 Importa el nuevo archivo
 
 const AppRoutes = () => {
   return (
     <Router>
       <Routes>
-        {/* 🔹 Redirección por defecto */}
+        {/* 🔹 Redirección inicial */}
         <Route path="/" element={<Navigate to="/login" replace />} />
 
-        {/* 🔹 Página de login (fuera del layout) */}
+        {/* 🔹 Login (público) */}
         <Route path="/login" element={<Login />} />
 
-        {/* 🔹 Resto de rutas dentro del layout */}
-        <Route element={<MainLayout />}>
-          <Route path="/home" element={<Home />} />
-          <Route path="/inventario" element={<Inventario />} />
-          <Route path="/pedidos" element={<Mispedidos />} />
-          <Route path="/asistencia" element={<Asistencia />} />
-          <Route path="/justificaciones" element={<Justificaciones />} />
-          <Route path="/generar-incidencia" element={<GenerarIncidencia />} />
-          <Route path="/lista-incidencias" element={<ListaIncidencias />} />
+        {/* 🔹 Rutas protegidas */}
+        <Route element={<PrivateRoute />}>
+          <Route element={<MainLayout />}>
+            <Route path="/home" element={<Home />} />
+            <Route path="/inventario" element={<Inventario />} />
+            <Route path="/pedidos" element={<Mispedidos />} />
+            <Route path="/asistencia" element={<Asistencia />} />
+            <Route path="/justificaciones" element={<Justificaciones />} />
+            <Route path="/generar-incidencia" element={<GenerarIncidencia />} />
+            <Route path="/lista-incidencias" element={<ListaIncidencias />} />
+          </Route>
         </Route>
 
-        {/* 🔹 Cualquier ruta no válida redirige al login */}
+        {/* 🔹 Cualquier ruta inválida */}
         <Route path="*" element={<Navigate to="/login" replace />} />
       </Routes>
     </Router>
