@@ -9,6 +9,7 @@ import Login from "../pages/Login";
 import GenerarIncidencia from "../pages/GenerarIncidencia";
 import ListaIncidencias from "../pages/ListaIncidencias";
 import PrivateRoute from "./PrivateRoute"; // 🔹 Importa el nuevo archivo
+import CrearProducto from "../pages/CrearProducto";
 
 const AppRoutes = () => {
   return (
@@ -30,6 +31,7 @@ const AppRoutes = () => {
             <Route path="/justificaciones" element={<Justificaciones />} />
             <Route path="/generar-incidencia" element={<GenerarIncidencia />} />
             <Route path="/lista-incidencias" element={<ListaIncidencias />} />
+            <Route path="/crear-producto" element={<CrearProducto />} />
           </Route>
         </Route>
 

@@ -1,7 +1,8 @@
 import styled from "styled-components";
 import { useEffect, useState } from "react";
-import { getAsistencias } from "../service/asistenciaService"; // ✅ Importa tu servicio
+import { getAsistencias } from "../service/asistenciaService";
 
+// ✅ Estilos
 const Container = styled.div`
   display: flex;
   flex-direction: column;
@@ -97,27 +98,35 @@ const Button = styled.button`
     transform: translateY(-2px);
     box-shadow: 0 6px 18px rgba(87, 75, 255, 0.4);
   }
-
-  &:active {
-    transform: translateY(0);
-  }
 `;
 
-const Asistencia = ({ usuario }) => {
+const Asistencia = () => {
   const [fechaFiltro, setFechaFiltro] = useState("");
   const [asistencias, setAsistencias] = useState([]);
+  const [usuarioLogueado, setUsuarioLogueado] = useState(null);
 
-  // ✅ Cargar asistencias desde el backend
+  // ✅ Cargar usuario logueado
+  useEffect(() => {
+    const user = JSON.parse(localStorage.getItem("usuario"));
+    if (user) setUsuarioLogueado(user);
+  }, []);
+
+  // ✅ Cargar asistencias desde backend
   useEffect(() => {
     getAsistencias()
       .then((data) => setAsistencias(data))
       .catch((err) => console.error("Error cargando asistencias:", err));
   }, []);
 
-  // ✅ Filtrado opcional por fecha
-  const asistenciasFiltradas = fechaFiltro
-    ? asistencias.filter((a) => a.fecha === fechaFiltro)
-    : asistencias;
+  // ✅ Filtrar por usuario + fecha
+  const asistenciasFiltradas = asistencias.filter((a) => {
+    const coincideUsuario =
+      usuarioLogueado && a.empleado?.nombre === usuarioLogueado.nombre;
+
+    const coincideFecha = fechaFiltro ? a.fecha === fechaFiltro : true;
+
+    return coincideUsuario && coincideFecha;
+  });
 
   return (
     <Container>

@@ -3,7 +3,6 @@ import styled, { keyframes } from "styled-components";
 import { CartContext } from "../context/CartContext";
 import { FaTrash, FaCheckCircle, FaClock } from "react-icons/fa";
 import { crearPedido, getPedidos } from "../service/pedidoService";
-import { getProductos } from "../service/productoService";
 
 const fadeIn = keyframes`
   from { opacity: 0; transform: translateY(-10px); }
@@ -37,16 +36,13 @@ const Tarjeta = styled.div`
   display: flex;
   justify-content: space-between;
   align-items: center;
-  box-shadow: 0px 3px 6px rgba(0, 0, 0, 0.2);
 `;
 
 const BotonEliminar = styled.button`
   background: none;
   border: none;
   color: #ff6b6b;
-  font-size: 1.1rem;
   cursor: pointer;
-  transition: color 0.2s;
 
   &:hover {
     color: #ff3b3b;
@@ -57,15 +53,11 @@ const BotonPrincipal = styled.button`
   background-color: #3f3f5a;
   color: white;
   border: none;
-  border-radius: 8px;
   padding: 10px 16px;
-  font-size: 1rem;
+  border-radius: 8px;
   cursor: pointer;
-  margin-top: 25px;
+  margin: 25px auto 0 auto;
   display: block;
-  margin-left: auto;
-  margin-right: auto;
-  transition: background 0.3s;
 
   &:hover {
     background-color: #56567a;
@@ -80,12 +72,7 @@ const Toast = styled.div`
   color: white;
   padding: 15px 20px;
   border-radius: 8px;
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  box-shadow: 0px 3px 8px rgba(0, 0, 0, 0.3);
   animation: ${fadeIn} 0.3s ease;
-  z-index: 1500;
 `;
 
 const HistorialTitulo = styled.h3`
@@ -108,7 +95,6 @@ const FechaPedido = styled.div`
   display: flex;
   align-items: center;
   gap: 8px;
-  font-weight: 500;
   margin-bottom: 8px;
   color: #3f3f5a;
 `;
@@ -120,8 +106,18 @@ const InputCliente = styled.input`
   width: 60%;
   border: 1px solid #ccc;
   border-radius: 6px;
+  background: #e9e9e9;
   text-align: center;
-  font-size: 1rem;
+  cursor: not-allowed;
+`;
+
+const Estado = styled.span`
+  font-weight: 600;
+  padding: 6px 10px;
+  border-radius: 8px;
+  color: white;
+  background-color: ${({ estado }) =>
+    estado === "Atendido" ? "#28a745" : "#d39e00"};
 `;
 
 const MisPedidos = () => {
@@ -130,7 +126,6 @@ const MisPedidos = () => {
   const [historial, setHistorial] = useState([]);
   const [cliente, setCliente] = useState("");
 
-  // ✅ Cargar historial desde backend
   useEffect(() => {
     cargarPedidos();
   }, []);
@@ -139,26 +134,25 @@ const MisPedidos = () => {
     try {
       const data = await getPedidos();
       setHistorial(data);
-    } catch (error) {
-      console.error("Error al cargar pedidos:", error);
+    } catch (e) {
+      console.error("Error cargando pedidos:", e);
     }
   };
 
-  // ✅ Enviar pedido al backend
+  useEffect(() => {
+    const user = JSON.parse(localStorage.getItem("usuario"));
+    if (user) setCliente(user.nombre);
+  }, []);
+
   const handleEnviarPedido = async () => {
     if (cartItems.length === 0) {
       alert("No hay productos en el carrito");
       return;
     }
 
-    if (!cliente.trim()) {
-      alert("Por favor, ingresa el nombre del cliente");
-      return;
-    }
-
-    // Estructura del pedido para el backend
     const nuevoPedido = {
       cliente,
+      estado: "En espera", // ✅ Estado nuevo
       detalles: cartItems.map((item) => ({
         producto: { id: item.id },
         cantidad: item.cantidad || 1,
@@ -170,29 +164,20 @@ const MisPedidos = () => {
       setMostrarToast(true);
       setTimeout(() => setMostrarToast(false), 2500);
       clearCart();
-      setCliente("");
       cargarPedidos();
-    } catch (error) {
-      console.error("Error al registrar pedido:", error);
-      alert("Ocurrió un error al enviar el pedido");
+    } catch (e) {
+      alert("Error enviando el pedido");
     }
   };
 
   return (
     <Contenedor>
-      <Titulo> MIS PEDIDOS</Titulo>
+      <Titulo>MIS PEDIDOS</Titulo>
 
-      <InputCliente
-        type="text"
-        placeholder="Nombre del cliente"
-        value={cliente}
-        onChange={(e) => setCliente(e.target.value)}
-      />
+      <InputCliente value={cliente} readOnly />
 
       {cartItems.length === 0 ? (
-        <p style={{ textAlign: "center", color: "#555" }}>
-          No tienes productos en el carrito.
-        </p>
+        <p style={{ textAlign: "center" }}>No tienes productos en el carrito.</p>
       ) : (
         <>
           <ListaPedidos>
@@ -200,9 +185,7 @@ const MisPedidos = () => {
               <Tarjeta key={item.id}>
                 <div>
                   <strong>{item.nombre}</strong>
-                  <p style={{ margin: 0, fontSize: "0.9rem" }}>
-                    Cantidad: {item.cantidad || 1}
-                  </p>
+                  <p style={{ margin: 0 }}>Cantidad: {item.cantidad || 1}</p>
                 </div>
                 <BotonEliminar onClick={() => removeFromCart(item.id)}>
                   <FaTrash />
@@ -226,10 +209,17 @@ const MisPedidos = () => {
               <FechaPedido>
                 <FaClock /> {new Date(pedido.fecha).toLocaleString()}
               </FechaPedido>
+
               <p>
                 <strong>Cliente:</strong> {pedido.cliente}
               </p>
-              <ul style={{ margin: 0, paddingLeft: "20px" }}>
+
+              <p>
+                <strong>Estado:</strong>{" "}
+                <Estado estado={pedido.estado}>{pedido.estado}</Estado>
+              </p>
+
+              <ul>
                 {pedido.detalles.map((d, i) => (
                   <li key={i}>
                     {d.producto?.nombre} — {d.cantidad} unidades
@@ -243,7 +233,7 @@ const MisPedidos = () => {
 
       {mostrarToast && (
         <Toast>
-          <FaCheckCircle color="#00c853" size={20} />
+          <FaCheckCircle size={20} />
           <span>¡Pedido enviado correctamente!</span>
         </Toast>
       )}

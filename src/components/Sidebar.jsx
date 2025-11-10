@@ -111,6 +111,16 @@ const Sidebar = ({ isOpen, usuario }) => {
         Inventario
         {openMenu === "inventario" ? <FaChevronUp /> : <FaChevronDown />}
       </MenuItem>
+      <SubMenu isOpen={openMenu === "inventario"}>
+        <SubMenuItem onClick={() => navigate("/inventario")}>
+          Ver inventario
+        </SubMenuItem>
+
+        <SubMenuItem onClick={() => navigate("/crear-producto")}>
+          Crear producto
+        </SubMenuItem>
+      </SubMenu>
+
 
       <MenuItem
         onClick={() => {

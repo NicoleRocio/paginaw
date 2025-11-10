@@ -1,7 +1,7 @@
 import { useState, useEffect, useContext } from "react";
 import styled from "styled-components";
 import { CartContext } from "../context/CartContext";
-import { getProductos  } from "../service/productoService";
+import { getProductos } from "../service/productoService";
 
 const InventarioContainer = styled.div`
   padding: 30px;
@@ -96,36 +96,36 @@ const Boton = styled.button`
   background-color: #1e1e2f;
   color: white;
   cursor: pointer;
-  transition: background-color 0.2s ease;
 
   &:hover {
     background-color: #333355;
   }
 `;
 
-const Inventario = () => {
+export default function Inventario() {
   const [sedeSeleccionada, setSedeSeleccionada] = useState("todas");
   const [productos, setProductos] = useState([]);
   const { addToCart } = useContext(CartContext);
 
-  // ✅ Cargar productos desde el backend
+  // ✅ Cargar productos desde backend
   useEffect(() => {
     const fetchProductos = async () => {
       try {
-        const data = await getProductos ();
+        const data = await getProductos();
         setProductos(data);
-      } catch (error) {
-        console.error("Error al cargar productos:", error);
+      } catch (e) {
+        console.error("Error cargando productos:", e);
       }
     };
+
     fetchProductos();
   }, []);
 
-  // Filtrar por sede
+  // ✅ Filtrar por sede
   const productosFiltrados =
     sedeSeleccionada === "todas"
       ? productos
-      : productos.filter((item) => item.sede === sedeSeleccionada);
+      : productos.filter((p) => p.sede === sedeSeleccionada);
 
   return (
     <InventarioContainer>
@@ -138,10 +138,10 @@ const Inventario = () => {
           onChange={(e) => setSedeSeleccionada(e.target.value)}
         >
           <option value="todas">Todas</option>
-          <option value="Lima">Lima</option>
-          <option value="Arequipa">Arequipa</option>
-          <option value="Cusco">Cusco</option>
+          <option value="COLEGIO_ZARATE">Colegio Zárate</option>
+          <option value="ACADEMIA_ZARATE">Academia Zárate</option>
         </Select>
+
       </FiltroContainer>
 
       <Grid>
@@ -149,27 +149,44 @@ const Inventario = () => {
           <Tarjeta key={item.id}>
             <Imagen
               src={
-                item.imagen ||
-                "https://cdn-icons-png.flaticon.com/512/2920/2920322.png"
+                item.imagen
+                  ? `http://localhost:8080/uploads/imagenes/${item.imagen}`
+                  : "https://cdn-icons-png.flaticon.com/512/2920/2920322.png"
               }
-              alt={item.nombre}
             />
+
             <Nombre>{item.nombre}</Nombre>
             <Descripcion>{item.descripcion}</Descripcion>
+
             <Stock stock={item.stock}>
               {item.stock > 0
                 ? `Stock: ${item.stock} unidades`
                 : "Sin stock disponible"}
             </Stock>
 
+            {/* ✅ Aquí se reduce stock en backend y se actualiza visualmente */}
             {item.stock > 0 && (
-              <Boton onClick={() => addToCart(item)}>Agregar al carrito</Boton>
+              <Boton
+                onClick={async () => {
+                  const actualizado = await addToCart(item);
+
+                  if (actualizado) {
+                    setProductos((prev) =>
+                      prev.map((p) =>
+                        p.id === item.id
+                          ? { ...p, stock: actualizado.stock }
+                          : p
+                      )
+                    );
+                  }
+                }}
+              >
+                Agregar al carrito
+              </Boton>
             )}
           </Tarjeta>
         ))}
       </Grid>
     </InventarioContainer>
   );
-};
-
-export default Inventario;
+}

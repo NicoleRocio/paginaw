@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import styled from "styled-components";
 
+// ✅ ESTILOS
 const Contenedor = styled.div`
   height: 100vh;
   display: flex;
@@ -57,7 +58,6 @@ const Input = styled.input`
   border: 1px solid #ccc;
   font-size: 1rem;
   outline: none;
-  transition: border 0.3s ease;
 
   &:focus {
     border-color: #1e1e2f;
@@ -72,7 +72,6 @@ const TextArea = styled.textarea`
   min-height: 120px;
   outline: none;
   resize: vertical;
-  transition: border 0.3s ease;
 
   &:focus {
     border-color: #1e1e2f;
@@ -89,8 +88,7 @@ const Boton = styled.button`
   border: none;
   border-radius: 8px;
   cursor: pointer;
-  transition: background 0.3s ease;
-
+  
   &:hover {
     background-color: #2d2d44;
   }
@@ -124,41 +122,64 @@ const Estado = styled.span`
   color: ${({ estado }) => (estado === "Atendido" ? "#28a745" : "#d39e00")};
 `;
 
-const GenerarIncidencia = ({ usuario = "Usuario Logeado" }) => {
+const GenerarIncidencia = () => {
+  const [usuarioLogueado, setUsuarioLogueado] = useState(null);
+  const [incidencias, setIncidencias] = useState([]);
+  const [mensaje, setMensaje] = useState("");
+
   const [formData, setFormData] = useState({
-    usuario,
+    usuario: "",
     area: "",
     descripcion: "",
     estado: "Pendiente",
-    fecha: new Date().toLocaleDateString(),
-    hora: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
+    fecha: "",
+    hora: "",
   });
 
-  const [mensaje, setMensaje] = useState("");
-  const [incidencias, setIncidencias] = useState([]);
-
+  // ✅ Obtener usuario logueado al cargar
   useEffect(() => {
-    const guardadas = JSON.parse(localStorage.getItem("incidencias")) || [];
-    const filtradas = guardadas.filter((i) => i.usuario === usuario);
+    const user = JSON.parse(localStorage.getItem("usuario"));
+    if (user) {
+      setUsuarioLogueado(user);
+
+      setFormData((prev) => ({
+        ...prev,
+        usuario: user.nombre,
+        fecha: new Date().toLocaleDateString(),
+        hora: new Date().toLocaleTimeString([], {
+          hour: "2-digit",
+          minute: "2-digit",
+        }),
+      }));
+    }
+  }, []);
+
+  // ✅ Cargar incidencias solo del usuario logueado
+  useEffect(() => {
+    if (!usuarioLogueado) return;
+
+    const todas = JSON.parse(localStorage.getItem("incidencias")) || [];
+    const filtradas = todas.filter((i) => i.usuario === usuarioLogueado.nombre);
     setIncidencias(filtradas);
-  }, [usuario]);
+  }, [usuarioLogueado]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData({ ...formData, [name]: value });
   };
 
+  // ✅ Registrar incidencia
   const handleSubmit = (e) => {
     e.preventDefault();
 
     const nuevaIncidencia = {
       id: Date.now(),
-      usuario: formData.usuario,
-      area: formData.area,
-      descripcion: formData.descripcion,
-      estado: "Pendiente",
+      ...formData,
       fecha: new Date().toLocaleDateString(),
-      hora: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
+      hora: new Date().toLocaleTimeString([], {
+        hour: "2-digit",
+        minute: "2-digit",
+      }),
     };
 
     const nuevas = [...incidencias, nuevaIncidencia];
@@ -176,9 +197,11 @@ const GenerarIncidencia = ({ usuario = "Usuario Logeado" }) => {
 
   return (
     <Contenedor>
+      
       {/* FORMULARIO */}
       <Formulario>
         <Titulo>Registrar Incidencia o Solicitud</Titulo>
+
         <form onSubmit={handleSubmit}>
           <Campo>
             <Label>Usuario:</Label>
@@ -217,6 +240,7 @@ const GenerarIncidencia = ({ usuario = "Usuario Logeado" }) => {
       {/* HISTORIAL */}
       <Historial>
         <Titulo>Historial de Incidencias</Titulo>
+
         {incidencias.length === 0 ? (
           <p>No tienes incidencias registradas.</p>
         ) : (
