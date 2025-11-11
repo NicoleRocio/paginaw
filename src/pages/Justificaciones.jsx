@@ -1,156 +1,203 @@
 import { useState, useEffect } from "react";
-import styled from "styled-components";
+import styled, { keyframes } from "styled-components";
 
-const Container = styled.div`
+/* Animación suave */
+const fadeIn = keyframes`
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+`;
+
+const Page = styled.div`
   padding: 40px;
   display: flex;
   flex-direction: column;
   align-items: center;
-  background-color: #f7f8fa;
-  min-height: 10vh;
+  animation: ${fadeIn} 0.4s ease;
+  background: #E4F3FA;
+  min-height: 100vh;
+`;
+
+const Card = styled.div`
+  background: #ffffff;
+  width: 100%;
+  max-width: 750px;
+  padding: 35px;
+  border-radius: 18px;
+  box-shadow: 0 4px 14px rgba(0,0,0,0.08);
+  display: flex;
+  flex-direction: column;
+  gap: 25px;
+`;
+
+const Header = styled.div`
+  text-align: center;
+  border-bottom: 2px solid #E4F3FA;
+  padding-bottom: 15px;
 `;
 
 const Title = styled.h2`
-  font-size: 1.8rem;
+  font-size: 1.9rem;
   font-weight: 700;
-  color: #222;
-  margin-bottom: 25px;
-  text-transform: uppercase;
+  color: #2F4F5F;
+  margin: 0;
 `;
 
-const Form = styled.form`
-  background: #ffffff;
-  border-radius: 12px;
-  padding: 30px;
-  width: 100%;
-  max-width: 600px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+const Subtitle = styled.p`
+  margin: 3px 0 0 0;
+  color: #63838F;
+  font-size: 0.95rem;
+`;
+
+/* ----------- FORMULARIO ----------- */
+
+const Section = styled.div`
   display: flex;
   flex-direction: column;
   gap: 20px;
 `;
 
+const FieldGroup = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+`;
+
 const Label = styled.label`
-  font-size: 0.95rem;
+  font-size: 0.93rem;
   font-weight: 600;
-  color: #333;
+  color: #2F4F5F;
 `;
 
 const Input = styled.input`
-  padding: 10px;
-  border-radius: 8px;
-  border: 1px solid #ccc;
-  background: #fafafa;
-  color: #333;
+  padding: 12px 14px;
+  border-radius: 10px;
+  border: 1.5px solid #A7D4E6;
+  background: #FFFFFF;
+  outline: none;
   font-size: 1rem;
-  width: 100%;
+  transition: 0.25s;
 
   &:focus {
-    outline: none;
-    border-color: #4a6cf7;
-    background: #fff;
+    background: #ffffff;
+    border-color: #7EC4DD;
+    box-shadow: 0 0 6px rgba(126,196,221,0.35);
   }
 `;
 
 const TextArea = styled.textarea`
-  padding: 10px;
-  border-radius: 8px;
-  border: 1px solid #ccc;
-  background: #fafafa;
-  color: #333;
-  font-size: 1rem;
+  padding: 12px 14px;
+  border-radius: 10px;
+  border: 1.5px solid #A7D4E6;
+  background: #FFFFFF;
+  outline: none;
   resize: none;
-  width: 100%;
+  height: 130px;
+  transition: 0.25s;
 
   &:focus {
-    outline: none;
-    border-color: #4a6cf7;
-    background: #fff;
+    background: #ffffff;
+    border-color: #7EC4DD;
+    box-shadow: 0 0 6px rgba(126,196,221,0.35);
   }
 `;
 
 const FileInput = styled.input`
-  padding: 8px;
-  background: #fafafa;
-  border: 1px dashed #999;
-  border-radius: 8px;
+  border: 1.5px dashed #A7D4E6;
+  border-radius: 12px;
+  padding: 12px;
+  background: #F3FAFD;
   cursor: pointer;
-  color: #555;
+  color: #466974;
 
   &::file-selector-button {
-    background: #4a6cf7;
+    background: #7EC4DD;
     color: white;
     border: none;
-    border-radius: 8px;
     padding: 8px 12px;
+    border-radius: 10px;
     margin-right: 10px;
     cursor: pointer;
-    transition: 0.3s;
+    transition: 0.25s;
   }
 
   &::file-selector-button:hover {
-    background: #3553d4;
+    background: #68B1C9;
   }
+`;
+
+const InfoFile = styled.p`
+  font-size: 0.9rem;
+  color: #5A6C73;
 `;
 
 const SubmitButton = styled.button`
-  background: #4a6cf7;
+  background: #7EC4DD;
   color: white;
-  font-size: 1rem;
-  font-weight: 600;
-  padding: 12px;
-  border: none;
-  border-radius: 10px;
-  cursor: pointer;
-  transition: all 0.3s ease;
-
-  &:hover {
-    background: #3553d4;
-    transform: translateY(-2px);
-  }
-`;
-
-const JustificationList = styled.div`
-  margin-top: 40px;
+  padding: 14px;
   width: 100%;
-  max-width: 700px;
-`;
-
-const JustificationCard = styled.div`
-  background: #ffffff;
-  border: 1px solid #e1e1e1;
+  max-width: 220px;
   border-radius: 12px;
-  padding: 15px 20px;
-  margin-bottom: 15px;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
-  transition: 0.3s;
+  border: none;
+  font-weight: 600;
+  font-size: 1.05rem;
+  align-self: center;
+  cursor: pointer;
+  transition: 0.25s;
 
   &:hover {
+    background: #68B1C9;
     transform: translateY(-2px);
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
   }
 `;
 
-const CardTitle = styled.h4`
-  color: #4a6cf7;
-  margin: 0 0 8px 0;
+/* ----------- TABLA HISTORIAL (IGUAL QUE MISPEDIDOS) ----------- */
+
+const TableWrapper = styled.div`
+  margin-top: 35px;
+  max-width: 900px;
+  width: 100%;
+  background: white;
+  padding: 20px;
+  border-radius: 14px;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.08);
 `;
 
-const CardText = styled.p`
-  color: #555;
-  margin: 0;
-  font-size: 0.9rem;
+const Table = styled.table`
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.95rem;
+  color: #2F4F5F;
+`;
+
+const Th = styled.th`
+  background: #7EC4DD;
+  color: white;
+  padding: 12px;
+  font-weight: 700;
+  text-align: left;
+`;
+
+const Tr = styled.tr`
+  &:nth-child(even) {
+    background: #F7FBFC;
+  }
+`;
+
+const Td = styled.td`
+  padding: 12px;
+  border-bottom: 1px solid #E7EEF1;
 `;
 
 const FileLink = styled.a`
   color: #0073e6;
-  font-weight: 500;
-  text-decoration: none;
+  font-weight: 600;
 
   &:hover {
     text-decoration: underline;
   }
 `;
+
+/* ----------- COMPONENTE PRINCIPAL ----------- */
 
 const Justificaciones = () => {
   const [fecha, setFecha] = useState("");
@@ -166,22 +213,25 @@ const Justificaciones = () => {
 
   const handleArchivo = (e) => {
     const file = e.target.files[0];
+
     if (file && file.type === "application/pdf" && file.size <= 5 * 1024 * 1024) {
       setArchivo(file);
     } else {
-      alert("Solo se permiten archivos PDF menores a 5 MB");
+      alert("Solo se permiten PDF menores a 5 MB");
       e.target.value = null;
     }
   };
 
   const handleSubmit = (e) => {
     e.preventDefault();
+
     if (!fecha || !motivo || !detalle || !archivo) {
-      alert("Por favor completa todos los campos y sube un archivo PDF.");
+      alert("Por favor completa todos los campos y sube un PDF.");
       return;
     }
 
     const fileURL = URL.createObjectURL(archivo);
+
     const nuevaJustificacion = {
       id: Date.now(),
       fecha,
@@ -190,9 +240,9 @@ const Justificaciones = () => {
       archivo: { nombre: archivo.name, url: fileURL },
     };
 
-    const actualizadas = [...justificaciones, nuevaJustificacion];
-    setJustificaciones(actualizadas);
-    localStorage.setItem("justificaciones", JSON.stringify(actualizadas));
+    const updated = [...justificaciones, nuevaJustificacion];
+    setJustificaciones(updated);
+    localStorage.setItem("justificaciones", JSON.stringify(updated));
 
     setFecha("");
     setMotivo("");
@@ -201,63 +251,86 @@ const Justificaciones = () => {
   };
 
   return (
-    <Container>
-      <Title>Justificaciones</Title>
+    <Page>
+      <Card>
+        <Header>
+          <Title>Registro de Justificaciones</Title>
+          <Subtitle>Adjunte un PDF y complete la información</Subtitle>
+        </Header>
 
-      <Form onSubmit={handleSubmit}>
-        <div>
-          <Label>Fecha:</Label>
-          <Input type="date" value={fecha} onChange={(e) => setFecha(e.target.value)} />
-        </div>
+        <form onSubmit={handleSubmit}>
+          <Section>
 
-        <div>
-          <Label>Motivo:</Label>
-          <Input
-            type="text"
-            placeholder="Ejemplo: Falta por salud"
-            value={motivo}
-            onChange={(e) => setMotivo(e.target.value)}
-          />
-        </div>
+            <FieldGroup>
+              <Label>Fecha del evento</Label>
+              <Input type="date" value={fecha} onChange={(e)=>setFecha(e.target.value)} />
+            </FieldGroup>
 
-        <div>
-          <Label>Detalle:</Label>
-          <TextArea
-            rows="4"
-            placeholder="Describe brevemente el motivo..."
-            value={detalle}
-            onChange={(e) => setDetalle(e.target.value)}
-          />
-        </div>
+            <FieldGroup>
+              <Label>Motivo</Label>
+              <Input
+                type="text"
+                placeholder="Ejemplo: Cita médica"
+                value={motivo}
+                onChange={(e)=>setMotivo(e.target.value)}
+              />
+            </FieldGroup>
 
-        <div>
-          <Label>Subir archivo PDF:</Label>
-          <FileInput type="file" accept="application/pdf" onChange={handleArchivo} />
-          {archivo && <p style={{ color: "#555", fontSize: "0.9rem" }}>📎 {archivo.name}</p>}
-        </div>
+            <FieldGroup>
+              <Label>Detalle</Label>
+              <TextArea
+                placeholder="Explique brevemente el motivo..."
+                value={detalle}
+                onChange={(e)=>setDetalle(e.target.value)}
+              />
+            </FieldGroup>
 
-        <SubmitButton type="submit">Enviar Justificación</SubmitButton>
-      </Form>
+            <FieldGroup>
+              <Label>Adjuntar PDF</Label>
+              <FileInput type="file" accept="application/pdf" onChange={handleArchivo} />
+              {archivo && <InfoFile>📎 {archivo.name}</InfoFile>}
+            </FieldGroup>
 
-      <JustificationList>
-        {justificaciones.length > 0 ? (
-          justificaciones.map((j) => (
-            <JustificationCard key={j.id}>
-              <CardTitle>{j.motivo}</CardTitle>
-              <CardText>📅 <strong>Fecha:</strong> {j.fecha}</CardText>
-              <CardText>{j.detalle}</CardText>
-              {j.archivo && (
-                <CardText>
-                  📎 <FileLink href={j.archivo.url} target="_blank">{j.archivo.nombre}</FileLink>
-                </CardText>
-              )}
-            </JustificationCard>
-          ))
-        ) : (
-          <p style={{ color: "#666", textAlign: "center" }}>No hay justificaciones registradas.</p>
-        )}
-      </JustificationList>
-    </Container>
+            <SubmitButton type="submit">Enviar Justificación</SubmitButton>
+          </Section>
+        </form>
+      </Card>
+
+      {/* ----------- TABLA HISTORIAL ----------- */}
+      {justificaciones.length > 0 && (
+        <TableWrapper>
+          <h3 style={{ textAlign: "center", marginBottom: "20px", color: "#2F4F5F" }}>
+            Historial de Justificaciones
+          </h3>
+
+          <Table>
+            <thead>
+              <tr>
+                <Th>Fecha</Th>
+                <Th>Motivo</Th>
+                <Th>Detalle</Th>
+                <Th>Archivo</Th>
+              </tr>
+            </thead>
+
+            <tbody>
+              {justificaciones.map((j) => (
+                <Tr key={j.id}>
+                  <Td>{j.fecha}</Td>
+                  <Td>{j.motivo}</Td>
+                  <Td>{j.detalle}</Td>
+                  <Td>
+                    <FileLink href={j.archivo.url} target="_blank">
+                      {j.archivo.nombre}
+                    </FileLink>
+                  </Td>
+                </Tr>
+              ))}
+            </tbody>
+          </Table>
+        </TableWrapper>
+      )}
+    </Page>
   );
 };
 

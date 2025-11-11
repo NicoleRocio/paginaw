@@ -1,17 +1,53 @@
 import { useState } from "react";
-import styled from "styled-components";
+import styled, { keyframes } from "styled-components";
 import { crearProducto } from "../service/productoService";
 
-const Container = styled.div`
-  padding: 30px;
-  max-width: 700px;
-  margin: auto;
+/* --------------------------------------------------------
+   ANIMACIÓN
+-------------------------------------------------------- */
+
+const fadeIn = keyframes`
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
 `;
 
-const Titulo = styled.h2`
-  margin-bottom: 25px;
-  font-weight: 700;
+/* --------------------------------------------------------
+   CONTENEDOR PRINCIPAL
+-------------------------------------------------------- */
+
+const PageContainer = styled.div`
+  padding: 35px;
+  display: flex;
+  justify-content: center;
+  animation: ${fadeIn} 0.4s ease;
 `;
+
+const Card = styled.div`
+  background: #ffffff;
+  padding: 35px 45px;
+  border-radius: 18px;
+  width: 100%;
+  max-width: 700px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+`;
+
+/* --------------------------------------------------------
+   ESTILOS DE TÍTULO
+-------------------------------------------------------- */
+
+const Titulo = styled.h2`
+  margin: 0 0 10px 0;
+  color: #2F4F5F;
+  font-weight: 700;
+  font-size: 1.8rem;
+`;
+
+/* --------------------------------------------------------
+   FORMULARIO
+-------------------------------------------------------- */
 
 const Form = styled.form`
   display: flex;
@@ -19,49 +55,96 @@ const Form = styled.form`
   gap: 15px;
 `;
 
+const Label = styled.label`
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: #2F4F5F;
+`;
+
 const Input = styled.input`
-  padding: 10px;
-  border-radius: 6px;
-  border: 1px solid #ccc;
-`;
-
-const Select = styled.select`
-  padding: 10px;
-  border-radius: 6px;
-  border: 1px solid #ccc;
-`;
-
-const TextArea = styled.textarea`
-  padding: 10px;
-  border-radius: 6px;
-  border: 1px solid #ccc;
-  height: 120px;
-  resize: none;
-`;
-
-const Button = styled.button`
   padding: 12px;
-  background-color: #1e1e2f;
-  color: white;
-  border: none;
-  border-radius: 6px;
-  cursor: pointer;
+  border-radius: 10px;
+  border: 1.5px solid #A7D4E6;
+  outline: none;
   font-size: 1rem;
+  color: #2F4F5F;
+  transition: 0.25s;
 
-  &:hover {
-    background-color: #333355;
+  &:focus {
+    border-color: #7EC4DD;
+    box-shadow: 0 0 6px rgba(126,196,221,0.4);
   }
 `;
 
-const ImagenPreview = styled.img`
-  width: 150px;
-  height: 150px;
-  object-fit: contain;
-  background: #fff;
-  border-radius: 8px;
-  margin-top: 10px;
-  padding: 5px;
+const Select = styled.select`
+  padding: 12px;
+  border-radius: 10px;
+  border: 1.5px solid #A7D4E6;
+  outline: none;
+  font-size: 1rem;
+  color: #2F4F5F;
+  transition: 0.25s;
+
+  &:focus {
+    border-color: #7EC4DD;
+    box-shadow: 0 0 6px rgba(126,196,221,0.4);
+  }
 `;
+
+const TextArea = styled.textarea`
+  padding: 12px;
+  border-radius: 10px;
+  border: 1.5px solid #A7D4E6;
+  outline: none;
+  height: 140px;
+  resize: none;
+  color: #2F4F5F;
+  transition: 0.25s;
+
+  &:focus {
+    border-color: #7EC4DD;
+    box-shadow: 0 0 6px rgba(126,196,221,0.4);
+  }
+`;
+
+/* --------------------------------------------------------
+   BOTÓN
+-------------------------------------------------------- */
+
+const Button = styled.button`
+  padding: 14px;
+  background-color: #7EC4DD;
+  color: white;
+  border: none;
+  border-radius: 12px;
+  font-size: 1.05rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: 0.25s;
+
+  &:hover {
+    background-color: #68B1C9;
+  }
+`;
+
+/* --------------------------------------------------------
+   PREVIEW IMAGEN
+-------------------------------------------------------- */
+
+const ImagenPreview = styled.img`
+  width: 160px;
+  height: 160px;
+  object-fit: contain;
+  background: white;
+  border-radius: 12px;
+  margin-top: 10px;
+  padding: 10px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+`;
+
+/* --------------------------------------------------------
+   COMPONENTE PRINCIPAL
+-------------------------------------------------------- */
 
 export default function CrearProducto() {
   const [producto, setProducto] = useState({
@@ -75,12 +158,10 @@ export default function CrearProducto() {
   const [preview, setPreview] = useState(null);
   const [loading, setLoading] = useState(false);
 
-  // ✅ Manejo de inputs
   const handleChange = (e) => {
     setProducto({ ...producto, [e.target.name]: e.target.value });
   };
 
-  // ✅ Manejo de imagen + previsualización
   const handleImagen = (e) => {
     const file = e.target.files[0];
     if (!file) return;
@@ -89,7 +170,6 @@ export default function CrearProducto() {
     setPreview(URL.createObjectURL(file));
   };
 
-  // ✅ Enviar al backend
   const handleSubmit = async (e) => {
     e.preventDefault();
 
@@ -111,12 +191,10 @@ export default function CrearProducto() {
 
       alert("✅ Producto creado correctamente");
 
-      // limpiar formulario
       setProducto({ nombre: "", descripcion: "", sede: "", stock: "" });
       setImagen(null);
       setPreview(null);
 
-      // redireccionar
       window.location.href = "/inventario";
 
     } catch (error) {
@@ -128,55 +206,64 @@ export default function CrearProducto() {
   };
 
   return (
-    <Container>
-      <Titulo>Crear nuevo producto</Titulo>
+    <PageContainer>
+      <Card>
+        <Titulo>Crear nuevo producto</Titulo>
 
-      <Form onSubmit={handleSubmit}>
-        <Input
-          name="nombre"
-          placeholder="Nombre del producto"
-          value={producto.nombre}
-          onChange={handleChange}
-          required
-        />
+        <Form onSubmit={handleSubmit}>
 
-        <TextArea
-          name="descripcion"
-          placeholder="Descripción"
-          value={producto.descripcion}
-          onChange={handleChange}
-          required
-        />
+          <Label>Nombre del producto</Label>
+          <Input
+            name="nombre"
+            placeholder="Ej. Impresora HP 2320"
+            value={producto.nombre}
+            onChange={handleChange}
+            required
+          />
 
-        <Select
-          name="sede"
-          value={producto.sede}
-          onChange={handleChange}
-          required
-        >
-          <option value="">Seleccionar sede</option>
-          <option value="COLEGIO_ZARATE">COLEGIO ZARATE</option>
-          <option value="ACADEMIA_ZARATE">ACADEMIA ZARATE</option>
-          <option value="Cusco">Cusco</option>
-        </Select>
+          <Label>Descripción</Label>
+          <TextArea
+            name="descripcion"
+            placeholder="Describe el producto aquí..."
+            value={producto.descripcion}
+            onChange={handleChange}
+            required
+          />
 
-        <Input
-          name="stock"
-          type="number"
-          value={producto.stock}
-          placeholder="Stock"
-          onChange={handleChange}
-          required
-        />
+          <Label>Sede</Label>
+          <Select
+            name="sede"
+            value={producto.sede}
+            onChange={handleChange}
+            required
+          >
+            <option value="">Seleccionar sede</option>
+            <option value="COLEGIO_ZARATE">Colegio Zárate</option>
+            <option value="ACADEMIA_ZARATE">Academia Zárate</option>
+            <option value="Cusco">Cusco</option>
+          </Select>
 
-        <Input type="file" accept="image/*" onChange={handleImagen} />
+          <Label>Stock disponible</Label>
+          <Input
+            name="stock"
+            type="number"
+            value={producto.stock}
+            placeholder="Ej. 10"
+            onChange={handleChange}
+            required
+          />
 
-        {preview && <ImagenPreview src={preview} alt="Vista previa" />}
+          <Label>Imagen del producto</Label>
+          <Input type="file" accept="image/*" onChange={handleImagen} />
 
-        <Button type="submit" disabled={loading}>
-          {loading ? "Guardando..." : "Guardar producto"}
-        </Button>
-      </Form>
-    </Container>
+          {preview && <ImagenPreview src={preview} alt="Vista previa" />}
+
+          <Button type="submit" disabled={loading}>
+            {loading ? "Guardando..." : "Guardar producto"}
+          </Button>
+
+        </Form>
+      </Card>
+    </PageContainer>
   );
 }

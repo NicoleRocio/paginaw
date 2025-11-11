@@ -3,82 +3,109 @@ import styled from "styled-components";
 import { FaChevronDown, FaChevronUp } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
 
+/* --------------------------------------------------------
+   CONTENEDOR PRINCIPAL
+-------------------------------------------------------- */
+
 const SidebarContainer = styled.div`
   width: ${({ isOpen }) => (isOpen ? "250px" : "0")};
-  height: calc(100vh - 60px);
-  background-color: #1e1e2f;
-  color: white;
+  height: calc(100vh - 65px);
+  background-color: #F0FAFD;
+  color: #3A6A7E;
   display: flex;
   flex-direction: column;
   padding: ${({ isOpen }) => (isOpen ? "20px" : "0")};
   position: fixed;
-  top: 80px;
+  top: 65px;
   left: 0;
   transition: all 0.3s ease;
   overflow-y: auto;
-  z-index: 15;
+  z-index: 900;
+  box-shadow: ${({ isOpen }) =>
+    isOpen ? "4px 0px 12px rgba(0,0,0,0.05)" : "none"};
+  border-right: 1px solid rgba(0, 0, 0, 0.05);
   box-sizing: border-box;
 `;
 
+/* --------------------------------------------------------
+   USUARIO
+-------------------------------------------------------- */
+
 const UserInfo = styled.div`
   text-align: center;
-  margin-bottom: 20px;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.2);
-  padding-bottom: 10px;
+  padding-bottom: 12px;
+  margin-bottom: 18px;
+  border-bottom: 2px solid rgba(122, 181, 201, 0.25);
 `;
 
 const UserName = styled.h3`
   font-size: 1rem;
   font-weight: 600;
   margin: 0;
-  color: #ffffff;
+  color: #2F4F5F;
 `;
 
 const UserRole = styled.p`
-  font-size: 0.9rem;
-  color: #b0b0b0;
-  margin-top: 5px;
+  font-size: 0.85rem;
+  color: #597E8E;
+  margin: 4px 0 0;
 `;
+
+/* --------------------------------------------------------
+   ITEMS DEL MENÚ
+-------------------------------------------------------- */
 
 const MenuItem = styled.div`
   padding: 12px;
   cursor: pointer;
-  border-radius: 6px;
-  transition: background 0.2s;
+  border-radius: 8px;
+  transition: background 0.25s, color 0.25s;
   display: flex;
   justify-content: space-between;
   align-items: center;
+  color: #2F4F5F;
+  margin-bottom: 6px;
 
   &:hover {
-    background-color: #2d2d44;
+    background-color: #D8EEF5;
+    color: #1C4151;
   }
 `;
 
 const SubMenu = styled.div`
-  padding-left: 20px;
-  background-color: #25253a;
+  padding-left: 22px;
+  background-color: #E8F4FA;
   display: ${({ isOpen }) => (isOpen ? "block" : "none")};
-  border-left: 2px solid #3b3b5a;
+  border-left: 3px solid #A7D4E6;
+  border-radius: 4px;
+  margin-bottom: 8px;
 `;
 
 const SubMenuItem = styled.div`
   padding: 8px 0;
   cursor: pointer;
   font-size: 0.95rem;
-  transition: color 0.2s;
+  color: #2F4F5F;
+  transition: 0.2s;
 
   &:hover {
-    color: #b5b5ff;
+    color: #1A3F4F;
+    font-weight: 600;
   }
 `;
+
+/* --------------------------------------------------------
+   COMPONENTE PRINCIPAL
+-------------------------------------------------------- */
 
 const Sidebar = ({ isOpen, usuario }) => {
   const [openMenu, setOpenMenu] = useState(null);
   const navigate = useNavigate();
 
-  const toggleMenu = (menu) => setOpenMenu(openMenu === menu ? null : menu);
+  const toggleMenu = (menu) => {
+    setOpenMenu(openMenu === menu ? null : menu);
+  };
 
-  // 🔹 Si no hay usuario, evita errores
   if (!usuario) {
     return (
       <SidebarContainer isOpen={isOpen}>
@@ -89,28 +116,28 @@ const Sidebar = ({ isOpen, usuario }) => {
     );
   }
 
-  // 🔹 Si existe usuario, muestra su nombre y rol
   const nombreUsuario = usuario?.nombre || "Usuario";
   const rolUsuario = usuario?.empleado?.roles?.[0]?.nombre || "Sin rol";
 
   return (
     <SidebarContainer isOpen={isOpen}>
+      {/* INFO USUARIO */}
       <UserInfo>
         <UserName>{nombreUsuario}</UserName>
         <UserRole>{rolUsuario}</UserRole>
       </UserInfo>
 
-      <MenuItem onClick={() => navigate("/home")}>Inicio</MenuItem>
+      {/* INICIO */}
+      <MenuItem onClick={() => navigate("/home")}>
+        Inicio
+      </MenuItem>
 
-      <MenuItem
-        onClick={() => {
-          navigate("/inventario");
-          toggleMenu("inventario");
-        }}
-      >
+      {/* INVENTARIO */}
+      <MenuItem onClick={() => toggleMenu("inventario")}>
         Inventario
         {openMenu === "inventario" ? <FaChevronUp /> : <FaChevronDown />}
       </MenuItem>
+
       <SubMenu isOpen={openMenu === "inventario"}>
         <SubMenuItem onClick={() => navigate("/inventario")}>
           Ver inventario
@@ -121,35 +148,28 @@ const Sidebar = ({ isOpen, usuario }) => {
         </SubMenuItem>
       </SubMenu>
 
-
-      <MenuItem
-        onClick={() => {
-          navigate("/pedidos");
-          toggleMenu("pedidos");
-        }}
-      >
+      {/* MISPEDIDOS → NAVEGACIÓN DIRECTA ✅ */}
+      <MenuItem onClick={() => navigate("/pedidos")}>
         Mis pedidos
-        {openMenu === "pedidos" ? <FaChevronUp /> : <FaChevronDown />}
       </MenuItem>
 
-      <MenuItem
-        onClick={() => {
-          navigate("/asistencia");
-          toggleMenu("asistencia");
-        }}
-      >
+      {/* ASISTENCIA */}
+      <MenuItem onClick={() => toggleMenu("asistencia")}>
         Asistencia
         {openMenu === "asistencia" ? <FaChevronUp /> : <FaChevronDown />}
       </MenuItem>
+
       <SubMenu isOpen={openMenu === "asistencia"}>
         <SubMenuItem onClick={() => navigate("/asistencia")}>
           Ver asistencia
         </SubMenuItem>
+
         <SubMenuItem onClick={() => navigate("/justificaciones")}>
           Justificaciones
         </SubMenuItem>
       </SubMenu>
 
+      {/* SOPORTE */}
       <MenuItem onClick={() => toggleMenu("soporte")}>
         Mantenimiento y Soporte
         {openMenu === "soporte" ? <FaChevronUp /> : <FaChevronDown />}
@@ -161,7 +181,7 @@ const Sidebar = ({ isOpen, usuario }) => {
         </SubMenuItem>
 
         <SubMenuItem onClick={() => navigate("/lista-incidencias")}>
-          Lista de incidencias generadas por usuarios
+          Lista de incidencias
         </SubMenuItem>
       </SubMenu>
     </SidebarContainer>

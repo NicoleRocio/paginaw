@@ -4,21 +4,36 @@ import { CartContext } from "../context/CartContext";
 import { FaTrash, FaCheckCircle, FaClock } from "react-icons/fa";
 import { crearPedido, getPedidos } from "../service/pedidoService";
 
+/* Animación */
 const fadeIn = keyframes`
   from { opacity: 0; transform: translateY(-10px); }
   to { opacity: 1; transform: translateY(0); }
 `;
 
+/* --------------------------------------------------------
+   CONTENEDOR PRINCIPAL
+-------------------------------------------------------- */
+
 const Contenedor = styled.div`
-  padding: 20px;
-  color: #1e1e2f;
+  padding: 25px;
+  background: #E4F3FA;
+  min-height: 100vh;
 `;
 
+/* --------------------------------------------------------
+   TÍTULO
+-------------------------------------------------------- */
+
 const Titulo = styled.h2`
-  color: #1e1e2f;
+  color: #2F4F5F;
   text-align: center;
+  font-weight: 600;
   margin-bottom: 20px;
 `;
+
+/* --------------------------------------------------------
+   LISTA CARRITO
+-------------------------------------------------------- */
 
 const ListaPedidos = styled.div`
   display: flex;
@@ -29,38 +44,42 @@ const ListaPedidos = styled.div`
 `;
 
 const Tarjeta = styled.div`
-  background-color: #2d2d44;
-  color: white;
+  background-color: #FFFFFF;
   padding: 15px 20px;
-  border-radius: 10px;
+  border-radius: 12px;
   display: flex;
   justify-content: space-between;
   align-items: center;
+  box-shadow: 0px 3px 8px rgba(0,0,0,0.08);
+  color: #2F4F5F;
 `;
 
 const BotonEliminar = styled.button`
   background: none;
   border: none;
-  color: #ff6b6b;
+  color: #C03737;
+  font-size: 1.3rem;
   cursor: pointer;
 
   &:hover {
-    color: #ff3b3b;
+    color: #e04747;
   }
 `;
 
 const BotonPrincipal = styled.button`
-  background-color: #3f3f5a;
+  background-color: #7EC4DD;
   color: white;
   border: none;
-  padding: 10px 16px;
-  border-radius: 8px;
+  padding: 12px 18px;
+  border-radius: 10px;
   cursor: pointer;
-  margin: 25px auto 0 auto;
+  margin: 25px auto 0;
   display: block;
+  font-weight: 600;
+  transition: 0.25s ease;
 
   &:hover {
-    background-color: #56567a;
+    background-color: #68B1C9;
   }
 `;
 
@@ -68,57 +87,85 @@ const Toast = styled.div`
   position: fixed;
   top: 80px;
   right: 30px;
-  background-color: #2d2d44;
+  background-color: #7EC4DD;
   color: white;
-  padding: 15px 20px;
-  border-radius: 8px;
-  animation: ${fadeIn} 0.3s ease;
-`;
-
-const HistorialTitulo = styled.h3`
-  text-align: center;
-  color: #1e1e2f;
-  margin-top: 40px;
-`;
-
-const PedidoHistorial = styled.div`
-  background-color: #f5f5fa;
-  color: #1e1e2f;
+  padding: 12px 18px;
   border-radius: 10px;
-  padding: 15px 20px;
-  margin: 10px auto;
-  max-width: 700px;
-  box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.1);
-`;
-
-const FechaPedido = styled.div`
+  animation: ${fadeIn} 0.3s ease;
   display: flex;
   align-items: center;
-  gap: 8px;
-  margin-bottom: 8px;
-  color: #3f3f5a;
-`;
-
-const InputCliente = styled.input`
-  display: block;
-  margin: 15px auto;
-  padding: 10px;
-  width: 60%;
-  border: 1px solid #ccc;
-  border-radius: 6px;
-  background: #e9e9e9;
-  text-align: center;
-  cursor: not-allowed;
-`;
-
-const Estado = styled.span`
+  gap: 10px;
   font-weight: 600;
+`;
+
+/* --------------------------------------------------------
+   HISTORIAL - TABLA PROFESIONAL
+-------------------------------------------------------- */
+
+const TablaWrapper = styled.div`
+  margin-top: 35px;
+  max-width: 900px;
+  margin-left: auto;
+  margin-right: auto;
+  padding: 20px;
+  background: white;
+  border-radius: 14px;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+`;
+
+const Tabla = styled.table`
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.95rem;
+  color: #2F4F5F;
+`;
+
+const Th = styled.th`
+  background: #7EC4DD;
+  color: white;
+  padding: 12px;
+  font-weight: 700;
+  text-align: left;
+`;
+
+const Td = styled.td`
+  padding: 12px;
+  border-bottom: 1px solid #e6eaee;
+`;
+
+const Fila = styled.tr`
+  &:nth-child(even) {
+    background: #F7FBFC;
+  }
+`;
+
+const BadgeEstado = styled.span`
   padding: 6px 10px;
   border-radius: 8px;
-  color: white;
+  font-weight: 600;
   background-color: ${({ estado }) =>
-    estado === "Atendido" ? "#28a745" : "#d39e00"};
+    estado === "Atendido" ? "rgba(40,167,69,0.12)" : "rgba(211,158,0,0.15)"};
+  color: ${({ estado }) =>
+    estado === "Atendido" ? "#1C7C3E" : "#8A6D00"};
 `;
+
+/* Cliente */
+const InputCliente = styled.input`
+  display: block;
+  margin: 0 auto 20px;
+  padding: 10px;
+  width: 60%;
+  border-radius: 10px;
+  background: white;
+  border: 1px solid #A7D4E6;
+  text-align: center;
+  font-weight: 600;
+  color: #2F4F5F;
+`;
+
+/* --------------------------------------------------------
+   COMPONENTE PRINCIPAL
+-------------------------------------------------------- */
 
 const MisPedidos = () => {
   const { cartItems, removeFromCart, clearCart } = useContext(CartContext);
@@ -152,7 +199,7 @@ const MisPedidos = () => {
 
     const nuevoPedido = {
       cliente,
-      estado: "En espera", // ✅ Estado nuevo
+      estado: "En espera",
       detalles: cartItems.map((item) => ({
         producto: { id: item.id },
         cantidad: item.cantidad || 1,
@@ -176,8 +223,11 @@ const MisPedidos = () => {
 
       <InputCliente value={cliente} readOnly />
 
+      {/* CARRITO */}
       {cartItems.length === 0 ? (
-        <p style={{ textAlign: "center" }}>No tienes productos en el carrito.</p>
+        <p style={{ textAlign: "center", color: "#2F4F5F" }}>
+          No tienes productos en el carrito.
+        </p>
       ) : (
         <>
           <ListaPedidos>
@@ -185,7 +235,9 @@ const MisPedidos = () => {
               <Tarjeta key={item.id}>
                 <div>
                   <strong>{item.nombre}</strong>
-                  <p style={{ margin: 0 }}>Cantidad: {item.cantidad || 1}</p>
+                  <p style={{ margin: 0, color: "#466572" }}>
+                    Cantidad: {item.cantidad || 1}
+                  </p>
                 </div>
                 <BotonEliminar onClick={() => removeFromCart(item.id)}>
                   <FaTrash />
@@ -200,35 +252,46 @@ const MisPedidos = () => {
         </>
       )}
 
+      {/* HISTORIAL EN TABLA */}
       {historial.length > 0 && (
-        <>
-          <HistorialTitulo>📦 Pedidos registrados</HistorialTitulo>
+        <TablaWrapper>
+          <h3 style={{ textAlign: "center", marginBottom: "20px", color: "#2F4F5F" }}>
+            Historial de pedidos
+          </h3>
 
-          {historial.map((pedido) => (
-            <PedidoHistorial key={pedido.id}>
-              <FechaPedido>
-                <FaClock /> {new Date(pedido.fecha).toLocaleString()}
-              </FechaPedido>
+          <Tabla>
+            <thead>
+              <tr>
+                <Th>Fecha</Th>
+                <Th>Cliente</Th>
+                <Th>Estado</Th>
+                <Th>Detalles</Th>
+              </tr>
+            </thead>
 
-              <p>
-                <strong>Cliente:</strong> {pedido.cliente}
-              </p>
-
-              <p>
-                <strong>Estado:</strong>{" "}
-                <Estado estado={pedido.estado}>{pedido.estado}</Estado>
-              </p>
-
-              <ul>
-                {pedido.detalles.map((d, i) => (
-                  <li key={i}>
-                    {d.producto?.nombre} — {d.cantidad} unidades
-                  </li>
-                ))}
-              </ul>
-            </PedidoHistorial>
-          ))}
-        </>
+            <tbody>
+              {historial.map((pedido) => (
+                <Fila key={pedido.id}>
+                  <Td>{new Date(pedido.fecha).toLocaleString()}</Td>
+                  <Td>{pedido.cliente}</Td>
+                  <Td>
+                    <BadgeEstado estado={pedido.estado}>
+                      {pedido.estado}
+                    </BadgeEstado>
+                  </Td>
+                  <Td>
+                    {pedido.detalles
+                      .map(
+                        (d) =>
+                          `${d.producto?.nombre || "Producto"} (${d.cantidad})`
+                      )
+                      .join(", ")}
+                  </Td>
+                </Fila>
+              ))}
+            </tbody>
+          </Tabla>
+        </TablaWrapper>
       )}
 
       {mostrarToast && (

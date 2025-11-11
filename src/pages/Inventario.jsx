@@ -3,60 +3,92 @@ import styled from "styled-components";
 import { CartContext } from "../context/CartContext";
 import { getProductos } from "../service/productoService";
 
+/* --------------------------------------------------------
+   CONTENEDOR PRINCIPAL
+-------------------------------------------------------- */
+
 const InventarioContainer = styled.div`
-  padding: 30px;
-  background-color: #f4f4f9;
+  padding: 20px 30px;
+  background-color: #E4F3FA; 
   min-height: 100vh;
 `;
 
+/* --------------------------------------------------------
+   TÍTULO
+-------------------------------------------------------- */
+
 const Titulo = styled.h1`
-  font-size: 1.8rem;
-  margin-bottom: 25px;
-  color: #1e1e2f;
+  font-size: 1.6rem;
+  font-weight: 600;
+  color: #2F4F5F;
+  margin-bottom: 20px;
 `;
+
+/* --------------------------------------------------------
+   FILTROS
+-------------------------------------------------------- */
 
 const FiltroContainer = styled.div`
   display: flex;
   align-items: center;
   gap: 15px;
   margin-bottom: 25px;
+  background: #F0FAFD;
+  padding: 12px 16px;
+  border-radius: 10px;
+  border-left: 4px solid #A7D4E6;
+  box-shadow: 0px 3px 8px rgba(0,0,0,0.05);
 `;
 
 const Label = styled.label`
-  font-weight: 500;
-  color: #1e1e2f;
+  font-weight: 600;
+  color: #2F4F5F;
 `;
 
 const Select = styled.select`
   padding: 8px 12px;
-  border-radius: 6px;
-  border: 1px solid #ccc;
-  font-size: 1rem;
+  border-radius: 8px;
+  border: 1px solid #A7D4E6;
+  background: white;
+  font-size: 0.95rem;
   outline: none;
+  color: #2F4F5F;
+  transition: 0.25s;
 
   &:focus {
-    border-color: #1e1e2f;
+    border-color: #7EC4DD;
+    box-shadow: 0 0 4px rgba(126,196,221,0.5);
   }
 `;
 
+/* --------------------------------------------------------
+   GRID DE PRODUCTOS
+-------------------------------------------------------- */
+
 const Grid = styled.div`
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-  gap: 20px;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: 24px;
 `;
 
+/* --------------------------------------------------------
+   TARJETA
+-------------------------------------------------------- */
+
 const Tarjeta = styled.div`
-  background-color: white;
-  border-radius: 10px;
-  box-shadow: 0px 2px 6px rgba(0, 0, 0, 0.1);
-  padding: 15px;
+  background: #FFFFFF;
+  border-radius: 14px;
+  padding: 16px;
+  text-align: center;
+  box-shadow: 0px 4px 10px rgba(0,0,0,0.06);
+  transition: 0.25s ease;
   display: flex;
   flex-direction: column;
   align-items: center;
-  transition: transform 0.2s ease;
 
   &:hover {
-    transform: scale(1.02);
+    transform: translateY(-4px);
+    box-shadow: 0px 6px 14px rgba(0,0,0,0.08);
   }
 `;
 
@@ -69,45 +101,64 @@ const Imagen = styled.img`
 
 const Nombre = styled.h3`
   font-size: 1.1rem;
-  color: #1e1e2f;
-  margin: 5px 0;
+  font-weight: 600;
+  color: #2F4F5F;
+  margin: 6px 0;
 `;
 
 const Descripcion = styled.p`
-  font-size: 0.95rem;
-  color: #555;
+  font-size: 0.9rem;
+  color: #466572;
+  margin: 3px 0 12px;
   text-align: center;
-  margin: 5px 0 10px 0;
+  height: 45px;
 `;
+
+/* --------------------------------------------------------
+   STOCK (estilo corporativo)
+-------------------------------------------------------- */
 
 const Stock = styled.span`
-  background-color: ${({ stock }) => (stock > 0 ? "#28a745" : "#dc3545")};
-  color: white;
-  padding: 5px 12px;
+  background-color: ${({ stock }) =>
+    stock > 0 ? "rgba(40,167,69,0.12)" : "rgba(220,53,69,0.15)"};
+  color: ${({ stock }) => (stock > 0 ? "#1C7C3E" : "#C03737")};
+  padding: 6px 14px;
   border-radius: 20px;
   font-size: 0.9rem;
+  font-weight: 600;
+  margin-bottom: 12px;
 `;
+
+/* --------------------------------------------------------
+   BOTÓN
+-------------------------------------------------------- */
 
 const Boton = styled.button`
-  margin-top: 10px;
-  padding: 8px 12px;
-  border-radius: 6px;
+  margin-top: auto;
+  padding: 10px 14px;
+  border-radius: 10px;
   border: none;
-  background-color: #1e1e2f;
+  background-color: #7EC4DD;
   color: white;
+  font-weight: 600;
   cursor: pointer;
+  transition: 0.25s ease;
+  width: 100%;
 
   &:hover {
-    background-color: #333355;
+    background-color: #68B1C9;
   }
 `;
+
+/* --------------------------------------------------------
+   COMPONENTE PRINCIPAL
+-------------------------------------------------------- */
 
 export default function Inventario() {
   const [sedeSeleccionada, setSedeSeleccionada] = useState("todas");
   const [productos, setProductos] = useState([]);
   const { addToCart } = useContext(CartContext);
 
-  // ✅ Cargar productos desde backend
   useEffect(() => {
     const fetchProductos = async () => {
       try {
@@ -121,7 +172,7 @@ export default function Inventario() {
     fetchProductos();
   }, []);
 
-  // ✅ Filtrar por sede
+  // Filtrar productos
   const productosFiltrados =
     sedeSeleccionada === "todas"
       ? productos
@@ -141,7 +192,6 @@ export default function Inventario() {
           <option value="COLEGIO_ZARATE">Colegio Zárate</option>
           <option value="ACADEMIA_ZARATE">Academia Zárate</option>
         </Select>
-
       </FiltroContainer>
 
       <Grid>
@@ -164,7 +214,6 @@ export default function Inventario() {
                 : "Sin stock disponible"}
             </Stock>
 
-            {/* ✅ Aquí se reduce stock en backend y se actualiza visualmente */}
             {item.stock > 0 && (
               <Boton
                 onClick={async () => {
