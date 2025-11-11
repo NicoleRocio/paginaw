@@ -36,8 +36,8 @@ const Header = styled.div`
 `;
 
 const Title = styled.h2`
-  font-size: 1.9rem;
-  font-weight: 700;
+  font-size: 1.6rem;
+  font-weight: 600;
   color: #2F4F5F;
   margin: 0;
 `;

@@ -3,109 +3,111 @@ import { useState } from "react";
 import styled from "styled-components";
 import { useNavigate } from "react-router-dom";
 
-// 🎨 Estilos
+/* -------------------------------------------
+   ESTILOS PASTEL CELESTE
+------------------------------------------- */
+
 const Container = styled.div`
   display: flex;
   height: 100vh;
-  width: 100%;
-  overflow: hidden;
+  background: #E4F3FA;
 `;
 
 const LeftPanel = styled.div`
-  flex: 1;
+  width: 430px;
   background: #ffffff;
+  padding: 50px 40px;
   display: flex;
-  justify-content: center;
-  align-items: center;
   flex-direction: column;
-  padding: 60px;
-  box-shadow: 4px 0 20px rgba(0, 0, 0, 0.1);
-  z-index: 2;
+  justify-content: center;
+  box-shadow: 4px 0 15px rgba(0,0,0,0.08);
+  z-index: 3;
 `;
 
 const RightPanel = styled.div`
-  flex: 1.3;
-  background-image: url("https://images.unsplash.com/photo-1591696205602-2f950c417cb9?auto=format&fit=crop&w=1500&q=80");
-  background-size: cover;
-  background-position: center;
-  background-repeat: no-repeat;
-  position: relative;
-
-  &::before {
-    content: "";
-    position: absolute;
-    inset: 0;
-    background: rgba(0, 0, 0, 0.45);
-  }
-`;
-
-const Card = styled.div`
-  width: 100%;
-  max-width: 400px;
-  text-align: center;
-`;
-
-const Title = styled.h2`
-  color: #1f1f1f;
+  flex: 1;
+  background: linear-gradient(135deg, #7EC4DD 0%, #A7D4E6 100%);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  color: #2F4F5F;
   font-size: 2rem;
-  margin-bottom: 30px;
   font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 1px;
+  padding: 40px;
+`;
+
+const Title = styled.h1`
+  font-size: 1.8rem;
+  color: #2F4F5F;
+  font-weight: 700;
+  margin-bottom: 8px;
+`;
+
+const Subtitle = styled.p`
+  color: #466572;
+  font-size: 0.95rem;
+  margin-bottom: 35px;
+`;
+
+const FormCard = styled.div`
+  width: 100%;
+  max-width: 360px;
 `;
 
 const Label = styled.label`
   display: block;
-  text-align: left;
-  color: #333;
-  font-size: 1rem;
   font-weight: 600;
+  font-size: 0.95rem;
   margin-bottom: 6px;
+  color: #2F4F5F;
 `;
 
 const Input = styled.input`
   width: 100%;
-  padding: 13px;
+  padding: 12px 14px;
   border-radius: 10px;
-  border: 1px solid #ccc;
-  background: #f5f7fa;
-  font-size: 1rem;
-  color: #333;
+  border: 1.5px solid #A7D4E6;
+  background: #FAFCFD;
   margin-bottom: 18px;
-  transition: all 0.3s ease;
+  font-size: 1rem;
+  transition: 0.3s ease;
 
   &:focus {
     outline: none;
-    border-color: #4a6cf7;
-    background: #fff;
-    box-shadow: 0 0 6px rgba(74, 108, 247, 0.4);
+    border-color: #7EC4DD;
+    background: #ffffff;
+    box-shadow: 0 0 6px rgba(126, 196, 221, 0.3);
   }
 `;
 
 const Button = styled.button`
-  background: linear-gradient(135deg, #4a6cf7, #6c8efb);
+  width: 100%;
+  padding: 12px;
+  background: #7EC4DD;
   color: white;
   font-size: 1rem;
   font-weight: 600;
-  padding: 12px;
   border: none;
   border-radius: 10px;
   cursor: pointer;
-  width: 100%;
-  transition: all 0.3s ease;
-  box-shadow: 0 4px 12px rgba(74, 108, 247, 0.3);
+  transition: 0.25s;
 
   &:hover {
-    background: linear-gradient(135deg, #3553d4, #5c7cff);
+    background: #68B1C9;
     transform: translateY(-2px);
   }
 `;
 
-const Message = styled.p`
-  color: red;
-  font-size: 0.9rem;
-  margin-top: 10px;
+const ErrorMsg = styled.p`
+  color: #c0392b;
+  font-weight: 600;
+  text-align: center;
+  margin-top: 12px;
 `;
+
+/* -------------------------------------------
+   COMPONENTE
+------------------------------------------- */
 
 const Login = () => {
   const [usuario, setUsuario] = useState("");
@@ -135,11 +137,8 @@ const Login = () => {
       }
 
       const data = await response.json();
-
-      // ✅ Guardar datos del usuario (desde la base de datos)
       localStorage.setItem("usuario", JSON.stringify(data));
 
-      // ✅ Redirigir al Home
       navigate("/home");
     } catch (error) {
       console.error(error);
@@ -149,11 +148,14 @@ const Login = () => {
 
   return (
     <Container>
+      {/* PANEL IZQUIERDO */}
       <LeftPanel>
-        <Card>
-          <Title>Inicio de Sesión</Title>
+        <Title>Iniciar Sesión</Title>
+        <Subtitle>Accede al sistema interno del Grupo Zárate</Subtitle>
+
+        <FormCard>
           <form onSubmit={handleLogin}>
-            <Label>Usuario:</Label>
+            <Label>Usuario</Label>
             <Input
               type="text"
               placeholder="Ingrese su usuario"
@@ -161,7 +163,7 @@ const Login = () => {
               onChange={(e) => setUsuario(e.target.value)}
             />
 
-            <Label>Contraseña:</Label>
+            <Label>Contraseña</Label>
             <Input
               type="password"
               placeholder="Ingrese su contraseña"
@@ -170,12 +172,16 @@ const Login = () => {
             />
 
             <Button type="submit">Ingresar</Button>
-            {error && <Message>{error}</Message>}
+
+            {error && <ErrorMsg>{error}</ErrorMsg>}
           </form>
-        </Card>
+        </FormCard>
       </LeftPanel>
 
-      <RightPanel />
+      {/* PANEL DERECHO */}
+      <RightPanel>
+        Sistema Interno Zárate
+      </RightPanel>
     </Container>
   );
 };

@@ -29,6 +29,7 @@ const Titulo = styled.h2`
   text-align: center;
   font-weight: 600;
   margin-bottom: 20px;
+  font-size: 1.6rem;
 `;
 
 /* --------------------------------------------------------
@@ -219,7 +220,7 @@ const MisPedidos = () => {
 
   return (
     <Contenedor>
-      <Titulo>MIS PEDIDOS</Titulo>
+      <Titulo>Mis Pedidos</Titulo>
 
       <InputCliente value={cliente} readOnly />
 

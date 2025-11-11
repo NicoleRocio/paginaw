@@ -101,7 +101,7 @@ const Imagen = styled.img`
 
 const Nombre = styled.h3`
   font-size: 1.1rem;
-  font-weight: 600;
+  font-weight: 00;
   color: #2F4F5F;
   margin: 6px 0;
 `;
@@ -180,7 +180,7 @@ export default function Inventario() {
 
   return (
     <InventarioContainer>
-      <Titulo>INVENTARIO DE EQUIPOS TECNOLÓGICOS</Titulo>
+      <Titulo>Inventario de Equipos Tecnológicos</Titulo>
 
       <FiltroContainer>
         <Label>Filtrar por sede:</Label>

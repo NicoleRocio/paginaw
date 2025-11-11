@@ -2,101 +2,148 @@ import { useEffect, useState } from "react";
 import styled from "styled-components";
 import * as XLSX from "xlsx";
 
+/* -----------------------------
+   ESTILOS
+----------------------------- */
+
 const Contenedor = styled.div`
   padding: 40px;
-  background-color: #f4f4f9;
+  background-color: #E4F3FA;
   min-height: 100vh;
 `;
 
 const Titulo = styled.h2`
   text-align: center;
-  color: #1e1e2f;
-  margin-bottom: 25px;
+  color: #2F4F5F;
+  margin-bottom: 30px;
+  font-weight: 600;
+  font-size: 1.6rem;
+  
 `;
 
+/* WRAPPER QUE UNE FILTROS + EXPORTAR */
+const FiltrosWrapper = styled.div`
+  width: 100%;
+  max-width: 1100px;
+  margin: 0 auto 25px auto;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 15px;
+`;
+
+/* Caja de los dos filtros */
 const Filtros = styled.div`
   display: flex;
-  gap: 15px;
-  margin-bottom: 25px;
-  justify-content: center;
+  gap: 12px;
   flex-wrap: wrap;
 `;
 
 const InputFiltro = styled.input`
   padding: 10px 14px;
-  border: 1px solid #ccc;
-  border-radius: 8px;
+  border: 1.5px solid #A7D4E6;
+  border-radius: 10px;
   font-size: 1rem;
   outline: none;
 
   &:focus {
-    border-color: #1e1e2f;
+    border-color: #7EC4DD;
+    box-shadow: 0 0 5px rgba(126, 196, 221, 0.35);
   }
 `;
 
+/* BOTÓN EXPORTAR */
+const BotonExportar = styled.button`
+  padding: 12px 18px;
+  background-color: #2F4F5F;
+  color: white;
+  border-radius: 10px;
+  border: none;
+  font-weight: 600;
+  cursor: pointer;
+  transition: 0.25s;
+
+  &:hover {
+    background-color: #22323f;
+    transform: translateY(-2px);
+  }
+`;
+
+/* TABLA */
 const Tabla = styled.table`
   width: 100%;
+  max-width: 1100px;
+  margin: 0 auto;
   border-collapse: collapse;
-  background-color: #fff;
-  border-radius: 10px;
+  background-color: white;
+  /*border-radius: 0px;*/
   overflow: hidden;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 4px 14px rgba(247, 240, 240, 0.09);
 `;
 
 const Encabezado = styled.th`
-  background-color: #1e1e2f;
-  color: #fff;
+  background: #7EC4DD;
+  color: #F7FBFC;
   padding: 14px;
-  text-align: left;
   font-size: 0.95rem;
+  font-weight: 700;
+  text-align: left;
+`;
+
+const Fila = styled.tr`
+  &:nth-child(even) {
+    background: #F7FBFC;
+  }
 `;
 
 const Celda = styled.td`
   padding: 12px;
-  border-bottom: 1px solid #eee;
+  border-bottom: 1px solid #E7EEF1;
   font-size: 0.95rem;
-  color: #333;
+  color: #2F4F5F;
 `;
 
-const Fila = styled.tr`
-  &:hover {
-    background-color: #f9f9f9;
-  }
-`;
-
-const Boton = styled.button`
-  padding: 8px 12px;
+/* BOTONES DE ACCIÓN */
+const BotonAccion = styled.button`
+  padding: 8px 14px;
+  border-radius: 8px;
   border: none;
-  border-radius: 6px;
-  font-weight: 500;
+  font-weight: 600;
   cursor: pointer;
-  color: #fff;
-  transition: background 0.3s ease;
+  transition: 0.25s;
+  font-size: 0.82rem;
+  margin-right: 8px;
 
   ${({ tipo }) =>
     tipo === "atendido"
       ? `
-    background-color: #28a745;
-    &:hover { background-color: #218838; }
-  `
+        background: #1C7C3E;
+        color: white;
+        &:hover { background: #155f2f; }
+      `
+      : tipo === "pendiente"
+      ? `
+        background: #7EC4DD;
+        color: #1E1E2F;
+        &:hover { background: #68B1C9; }
+      `
       : tipo === "eliminar"
       ? `
-    background-color: #dc3545;
-    &:hover { background-color: #c82333; }
-  `
+        background: #C03737;
+        color: white;
+        &:hover { background: #a92f2f; }
+      `
       : `
-    background-color: #1e1e2f;
-    &:hover { background-color: #34344a; }
-  `}
+        background: #2F4F5F;
+        color: white;
+        &:hover { background: #22323f; }
+      `}
 `;
 
-const BotonExportar = styled(Boton)`
-  background-color: #007bff;
-  margin-bottom: 20px;
-  &:hover {
-    background-color: #0056b3;
-  }
-`;
+/* -----------------------------
+   COMPONENTE
+----------------------------- */
 
 const ListaIncidencias = () => {
   const [incidencias, setIncidencias] = useState([]);
@@ -137,24 +184,32 @@ const ListaIncidencias = () => {
 
   return (
     <Contenedor>
-      <Titulo>📋 Lista de Incidencias</Titulo>
+      <Titulo> Lista de Incidencias</Titulo>
 
-      <Filtros>
-        <InputFiltro
-          type="text"
-          placeholder="Filtrar por usuario..."
-          value={filtro}
-          onChange={(e) => setFiltro(e.target.value)}
-        />
-        <InputFiltro
-          type="date"
-          value={fechaFiltro}
-          onChange={(e) => setFechaFiltro(e.target.value)}
-        />
-      </Filtros>
+      {/* FILTROS Y EXPORTAR */}
+      <FiltrosWrapper>
 
-      <BotonExportar onClick={exportarExcel}>📊 Exportar a Excel</BotonExportar>
+        <Filtros>
+          <InputFiltro
+            type="text"
+            placeholder="Filtrar por usuario..."
+            value={filtro}
+            onChange={(e) => setFiltro(e.target.value)}
+          />
+          <InputFiltro
+            type="date"
+            value={fechaFiltro}
+            onChange={(e) => setFechaFiltro(e.target.value)}
+          />
+        </Filtros>
 
+        <BotonExportar onClick={exportarExcel}>
+          📊 Exportar Excel
+        </BotonExportar>
+
+      </FiltrosWrapper>
+
+      {/* TABLA */}
       <Tabla>
         <thead>
           <tr>
@@ -167,6 +222,7 @@ const ListaIncidencias = () => {
             <Encabezado>Acciones</Encabezado>
           </tr>
         </thead>
+
         <tbody>
           {filtradas.map((i, index) => (
             <Fila key={index}>
@@ -176,21 +232,21 @@ const ListaIncidencias = () => {
               <Celda>{i.fecha}</Celda>
               <Celda>{i.hora}</Celda>
               <Celda>{i.estado}</Celda>
+
               <Celda>
-                <Boton
-                  tipo="atendido"
+                <BotonAccion
+                  tipo={i.estado === "Atendido" ? "pendiente" : "atendido"}
                   onClick={() => marcarComoAtendido(index)}
                 >
-                  {i.estado === "Atendido"
-                    ? "Marcar como Pendiente"
-                    : "Marcar como Atendido"}
-                </Boton>{" "}
-                <Boton
+                  {i.estado === "Atendido" ? "Pendiente" : "Atendido"}
+                </BotonAccion>
+
+                <BotonAccion
                   tipo="eliminar"
                   onClick={() => eliminarIncidencia(index)}
                 >
                   Eliminar
-                </Boton>
+                </BotonAccion>
               </Celda>
             </Fila>
           ))}

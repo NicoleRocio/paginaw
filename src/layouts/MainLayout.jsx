@@ -118,7 +118,7 @@ const UserBox = styled.div`
   gap: 12px;
   background: rgba(255,255,255,0.35);
   backdrop-filter: blur(10px);
-  padding: 10px 18px;
+  padding: 4px 18px;
   border-radius: 40px;
   cursor: pointer;
   transition: 0.25s ease;

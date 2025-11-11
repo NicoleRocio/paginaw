@@ -18,9 +18,10 @@ const Container = styled.div`
 
 /* Título */
 const Title = styled.h2`
-  font-weight: 700;
+  font-weight: 600;
   color: #2F4F5F;
   text-align: center;
+  font-size: 1.6rem;
 `;
 
 /* Zona de filtros */

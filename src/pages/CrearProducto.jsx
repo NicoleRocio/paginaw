@@ -41,8 +41,8 @@ const Card = styled.div`
 const Titulo = styled.h2`
   margin: 0 0 10px 0;
   color: #2F4F5F;
-  font-weight: 700;
-  font-size: 1.8rem;
+  font-weight: 600;
+  font-size: 1.6rem;
 `;
 
 /* --------------------------------------------------------
