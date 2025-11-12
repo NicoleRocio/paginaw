@@ -1,114 +1,172 @@
 // src/pages/Login.jsx
 import { useState } from "react";
-import styled from "styled-components";
+import styled, { keyframes } from "styled-components";
 import { useNavigate } from "react-router-dom";
+import logoColegio from "../assets/logo-colegio.png";
 
-/* -------------------------------------------
-   ESTILOS PASTEL CELESTE
-------------------------------------------- */
+// ✨ Animación del degradado en movimiento
+const shine = keyframes`
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+`;
 
+// 🎨 Contenedor principal
 const Container = styled.div`
   display: flex;
   height: 100vh;
-  background: #E4F3FA;
+  width: 100%;
+  overflow: hidden;
+  font-family: "Poppins", sans-serif;
 `;
 
+// Panel izquierdo: formulario
 const LeftPanel = styled.div`
-  width: 430px;
+  flex: 0.5;
   background: #ffffff;
-  padding: 50px 40px;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  box-shadow: 4px 0 15px rgba(0,0,0,0.08);
-  z-index: 3;
-`;
-
-const RightPanel = styled.div`
-  flex: 1;
-  background: linear-gradient(135deg, #7EC4DD 0%, #A7D4E6 100%);
   display: flex;
   justify-content: center;
   align-items: center;
-  color: #2F4F5F;
-  font-size: 2rem;
+  flex-direction: column;
+  padding: 60px;
+  box-shadow: 4px 0 20px rgba(0, 0, 0, 0.1);
+  z-index: 2;
+`;
+
+// 🩵 Panel derecho: efecto glass ocupando todo
+const RightPanel = styled.div`
+  flex: 1.5;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, #7ec4dd, #68b1c9, #4b8ba8);
+  background-size: 300% 300%;
+  animation: ${shine} 10s ease infinite;
+  color: white;
+  overflow: hidden;
+
+  /* Glass effect en todo el panel */
+  &::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: rgba(255, 255, 255, 0.15);
+    backdrop-filter: blur(15px);
+    -webkit-backdrop-filter: blur(15px);
+  }
+
+  &::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(
+      circle at 30% 30%,
+      rgba(255, 255, 255, 0.25),
+      transparent 70%
+    );
+  }
+`;
+
+const LogoContainer = styled.div`
+  position: relative;
+  z-index: 2;
+  text-align: center;
+`;
+
+const LogoImg = styled.img`
+  width: 170px;
+  height: 170px;
+  object-fit: contain;
+  margin-bottom: 25px;
+  filter: drop-shadow(0 6px 10px rgba(0, 0, 0, 0.25));
+`;
+
+const LogoTitle = styled.h1`
+  font-size: 2.2rem;
   font-weight: 700;
-  padding: 40px;
+  letter-spacing: 2px;
+  margin: 0;
+  text-shadow: 0 3px 6px rgba(0, 0, 0, 0.3);
 `;
 
-const Title = styled.h1`
-  font-size: 1.8rem;
-  color: #2F4F5F;
-  font-weight: 700;
-  margin-bottom: 8px;
+const LogoSubtitle = styled.p`
+  font-size: 1.2rem;
+  opacity: 0.95;
+  margin-top: 10px;
+  font-weight: 500;
 `;
 
-const Subtitle = styled.p`
-  color: #466572;
-  font-size: 0.95rem;
-  margin-bottom: 35px;
-`;
-
-const FormCard = styled.div`
+// Tarjeta del formulario
+const Card = styled.div`
   width: 100%;
-  max-width: 360px;
+  max-width: 400px;
+  text-align: center;
+`;
+
+const Title = styled.h2`
+  color: #2f4f5f;
+  font-size: 2rem;
+  margin-bottom: 30px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 1px;
 `;
 
 const Label = styled.label`
   display: block;
+  text-align: left;
+  color: #2f4f5f;
+  font-size: 1rem;
   font-weight: 600;
-  font-size: 0.95rem;
   margin-bottom: 6px;
-  color: #2F4F5F;
 `;
 
 const Input = styled.input`
   width: 100%;
-  padding: 12px 14px;
+  padding: 13px;
   border-radius: 10px;
-  border: 1.5px solid #A7D4E6;
-  background: #FAFCFD;
-  margin-bottom: 18px;
+  border: 1.5px solid #a7d4e6;
+  background: #f7fbfc;
   font-size: 1rem;
-  transition: 0.3s ease;
+  color: #2f4f5f;
+  margin-bottom: 18px;
+  transition: all 0.3s ease;
 
   &:focus {
     outline: none;
-    border-color: #7EC4DD;
+    border-color: #7ec4dd;
     background: #ffffff;
-    box-shadow: 0 0 6px rgba(126, 196, 221, 0.3);
+    box-shadow: 0 0 6px rgba(126, 196, 221, 0.4);
   }
 `;
 
 const Button = styled.button`
-  width: 100%;
-  padding: 12px;
-  background: #7EC4DD;
+  background: linear-gradient(135deg, #7ec4dd, #68b1c9);
   color: white;
   font-size: 1rem;
   font-weight: 600;
+  padding: 12px;
   border: none;
   border-radius: 10px;
   cursor: pointer;
-  transition: 0.25s;
+  width: 100%;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 12px rgba(126, 196, 221, 0.4);
 
   &:hover {
-    background: #68B1C9;
+    background: linear-gradient(135deg, #68b1c9, #4b8ba8);
     transform: translateY(-2px);
   }
 `;
 
-const ErrorMsg = styled.p`
-  color: #c0392b;
-  font-weight: 600;
-  text-align: center;
-  margin-top: 12px;
+const Message = styled.p`
+  color: #d9534f;
+  font-size: 0.9rem;
+  margin-top: 10px;
 `;
 
-/* -------------------------------------------
-   COMPONENTE
-------------------------------------------- */
-
+// 🔹 Componente principal
 const Login = () => {
   const [usuario, setUsuario] = useState("");
   const [password, setPassword] = useState("");
@@ -138,7 +196,6 @@ const Login = () => {
 
       const data = await response.json();
       localStorage.setItem("usuario", JSON.stringify(data));
-
       navigate("/home");
     } catch (error) {
       console.error(error);
@@ -148,14 +205,12 @@ const Login = () => {
 
   return (
     <Container>
-      {/* PANEL IZQUIERDO */}
+      {/* Panel izquierdo: formulario */}
       <LeftPanel>
-        <Title>Iniciar Sesión</Title>
-        <Subtitle>Accede al sistema interno del Grupo Zárate</Subtitle>
-
-        <FormCard>
+        <Card>
+          <Title>Inicio de Sesión</Title>
           <form onSubmit={handleLogin}>
-            <Label>Usuario</Label>
+            <Label>Usuario:</Label>
             <Input
               type="text"
               placeholder="Ingrese su usuario"
@@ -163,7 +218,7 @@ const Login = () => {
               onChange={(e) => setUsuario(e.target.value)}
             />
 
-            <Label>Contraseña</Label>
+            <Label>Contraseña:</Label>
             <Input
               type="password"
               placeholder="Ingrese su contraseña"
@@ -172,15 +227,18 @@ const Login = () => {
             />
 
             <Button type="submit">Ingresar</Button>
-
-            {error && <ErrorMsg>{error}</ErrorMsg>}
+            {error && <Message>{error}</Message>}
           </form>
-        </FormCard>
+        </Card>
       </LeftPanel>
 
-      {/* PANEL DERECHO */}
+      {/* Panel derecho con fondo glass completo */}
       <RightPanel>
-        Sistema Interno Zárate
+        <LogoContainer>
+          <LogoImg src={logoColegio} alt="logo-colegio" />
+          <LogoTitle>Grupo Zárate Verástegui</LogoTitle>
+          <LogoSubtitle>Departamento de Sistemas</LogoSubtitle>
+        </LogoContainer>
       </RightPanel>
     </Container>
   );

@@ -6,28 +6,22 @@ import Sidebar from "../components/Sidebar";
 import logoColegio from "../assets/logo-colegio.png";
 import { CartContext } from "../context/CartContext";
 
-/* 
-  ---------------------------------------------------------
-  Animaciones
-  ---------------------------------------------------------
-*/
-
+/* --------------------------------------------------------
+   Animaciones
+-------------------------------------------------------- */
 const slideDown = keyframes`
   from { opacity: 0; transform: translateY(-10px); }
   to { opacity: 1; transform: translateY(0); }
 `;
 
-/* 
-  ---------------------------------------------------------
-  CONTENEDORES PRINCIPALES
-  ---------------------------------------------------------
-*/
-
+/* --------------------------------------------------------
+   CONTENEDORES PRINCIPALES
+-------------------------------------------------------- */
 const LayoutContainer = styled.div`
   display: flex;
   height: 100vh;
   width: 100%;
-  background-color: #E4F3FA; 
+  background-color: #E4F3FA;
   overflow: hidden;
 `;
 
@@ -42,7 +36,7 @@ const TopBar = styled.div`
   position: fixed;
   top: 0; left: 0; right: 0;
   z-index: 1000;
-  box-shadow: 0px 4px 10px rgba(0,0,0,0.08); 
+  box-shadow: 0px 4px 10px rgba(0,0,0,0.08);
 `;
 
 const MainContent = styled.div`
@@ -55,12 +49,9 @@ const MainContent = styled.div`
   transition: margin-left 0.3s ease;
 `;
 
-/* 
-  ---------------------------------------------------------
-  SECCIONES TOPBAR
-  ---------------------------------------------------------
-*/
-
+/* --------------------------------------------------------
+   SECCIONES TOPBAR
+-------------------------------------------------------- */
 const LeftSection = styled.div`
   display: flex;
   align-items: center;
@@ -82,12 +73,9 @@ const MenuButton = styled.button`
   cursor: pointer;
 `;
 
-/* 
-  ---------------------------------------------------------
-  USUARIO (DERECHA)
-  ---------------------------------------------------------
-*/
-
+/* --------------------------------------------------------
+   USUARIO (DERECHA)
+-------------------------------------------------------- */
 const RightSection = styled.div`
   display: flex;
   align-items: center;
@@ -128,7 +116,7 @@ const UserBox = styled.div`
   }
 
   span {
-    color: white;
+    color: #3A6A7E;
     font-weight: 600;
     line-height: 1.2;
   }
@@ -172,12 +160,9 @@ const DropdownItem = styled.div`
   }
 `;
 
-/* 
-  ---------------------------------------------------------
-  MODAL CARRITO
-  ---------------------------------------------------------
-*/
-
+/* --------------------------------------------------------
+   MODAL CARRITO
+-------------------------------------------------------- */
 const Overlay = styled.div`
   position: fixed;
   top: 65px; left: 0; right: 0; bottom: 0;
@@ -229,19 +214,24 @@ const BotonAccion = styled.button`
   }
 `;
 
-/* 
-  ---------------------------------------------------------
-  COMPONENTE PRINCIPAL
-  ---------------------------------------------------------
-*/
-
+/* --------------------------------------------------------
+   COMPONENTE PRINCIPAL
+-------------------------------------------------------- */
 const MainLayout = () => {
   const { cartItems, removeFromCart, clearCart } = useContext(CartContext);
 
-  const [isOpen, setIsOpen] = useState(false);
+  // ✅ Sidebar persistente (siempre visible por defecto)
+  const [isOpen, setIsOpen] = useState(() => {
+    const saved = localStorage.getItem("sidebarOpen");
+    return saved ? JSON.parse(saved) : true;
+  });
+
+  useEffect(() => {
+    localStorage.setItem("sidebarOpen", JSON.stringify(isOpen));
+  }, [isOpen]);
+
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [carritoVisible, setCarritoVisible] = useState(false);
-
   const [usuario, setUsuario] = useState(null);
   const userRef = useRef();
   const navigate = useNavigate();
